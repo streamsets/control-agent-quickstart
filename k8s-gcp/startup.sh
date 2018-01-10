@@ -119,7 +119,6 @@ kubectl create configmap streamsets-config \
 # 4. Launch Agent
 kubectl create -f control-agent.yaml
 
-set -x
 # 5. wait for agent to be registered with SCH
 temp_agent_Id=""
 while [ -z $temp_agent_Id ]; do
