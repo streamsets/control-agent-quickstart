@@ -12,7 +12,7 @@ spec:
       serviceAccountName: streamsets-agent
       containers:
       - name: sch-control-agent
-        image: streamsets/control-agent:3.0.1-RC3
+        image: streamsets/control-agent:latest
         env:
         - name: HOST
           valueFrom:
