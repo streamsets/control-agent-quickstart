@@ -19,11 +19,20 @@ as well as this JDBC Driver:
 
 Here are the steps to build such a Data Collector image with those dependencies: 
 
-## Start with the datacollector-docker project 
-Download or clone [this project](https://github.com/streamsets/datacollector-docker)
+## Create a Dockerfile 
+Create a Dockerfile with this content in a new directory I'll refer to as ```$PROJECT_HOME```.
+Specify the version of SDC to use; in this example I'll use v3.2.0.0:
 
+```dockerfile
+ARG SDC_VERSION=3.2.0.0
+FROM streamsets/datacollector:${SDC_VERSION}
+ARG SDC_LIBS
+RUN "${SDC_DIST}/bin/streamsets" stagelibs -install="${SDC_LIBS}"
+COPY --chown=sdc:sdc resources/ ${SDC_RESOURCES}/
+COPY --chown=sdc:sdc sdc-extras/ ${STREAMSETS_LIBRARIES_EXTRA_DIR}/
+```
 ##  Add external libraries
-To include external libraries in the image, like the JDBC driver mentioned above, add the file(s) to the ```sdc-extras``` directory at the root of the project, nested within the appropriate <stage-lib>/lib subdirectories, like this:
+To include external libraries in the image, like the JDBC driver mentioned above, add the file(s) to an ```sdc-extras``` directory at the root of the project, nested within the appropriate ```<stage-lib>/lib``` subdirectories, like this:
 
 ```
 $PROJECT_HOME/sdc-extras/streamsets-datacollector-jdbc-lib/lib/mysql-connector-java-5.1.46.jar
@@ -32,7 +41,7 @@ $PROJECT_HOME/sdc-extras/streamsets-datacollector-jdbc-lib/lib/mysql-connector-j
 
 ##  Add external resources
 
-Similarly, to include external resources, add them to the ```resources``` directory located here: 
+Similarly, to include external resources, add them to a ```resources``` directory located here: 
 
 ```
 $PROJECT_HOME/resources/
@@ -40,38 +49,30 @@ $PROJECT_HOME/resources/
 
 No external resources are needed for this example
 
-## Set the Data Collector version and download location 
-Set the Data Collector version and download location by editing the Dockerfile's ```SDC_VERSION``` arg (and if necessary, the ```SDC_URL``` arg).
-For example:
-```
-ARG SDC_VERSION=3.1.3.0
-
-ARG SDC_URL=https://archives.streamsets.com/datacollector/${SDC_VERSION}/tarball/streamsets-datacollector-core-${SDC_VERSION}.tgz
-```
 
 ## Build the image using the SDC_LIBS arg 
 Switch to the root of the project and build the image using the ```SDC_LIBS``` arg to specify a comma-delimited set of stage libs to include, using a command like this:
 
 ```
 $ docker build \
+-t <your org name>/<your repo name> \
 --build-arg SDC_LIBS=\
 streamsets-datacollector-jdbc-lib,\
 streamsets-datacollector-apache-kafka_1_0-lib,\
 streamsets-datacollector-elasticsearch_5-lib \
--t <your Docker name>/<your repo name> \
 .
 
 ```
 Note the trailing ```.``` at the end of the command.
 
-On my system, using my own Docker and repo name, I'll use the command:
+On my system, using my own org and repo name, I'll use the command:
 ```
 $ docker build \
+-t onefoursix/my_sdc \
 --build-arg SDC_LIBS=\
 streamsets-datacollector-jdbc-lib,\
 streamsets-datacollector-apache-kafka_1_0-lib,\
 streamsets-datacollector-elasticsearch_5-lib \
--t onefoursix/my_sdc \
 .
 ```
 
