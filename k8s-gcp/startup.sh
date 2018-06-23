@@ -38,7 +38,7 @@ kubectl create clusterrolebinding cluster-admin-binding \
 kubectl create serviceaccount streamsets-agent --namespace=${KUBE_NAMESPACE}
 kubectl create role streamsets-agent \
     --verb=get,list,create,update,delete,patch \
-    --resource=pods,secrets,deployments \
+    --resource=pods,secrets,replicasets,deployments,ingresses,services,horizontalpodautoscalers \
     --namespace=${KUBE_NAMESPACE}
 kubectl create rolebinding streamsets-agent \
     --role=streamsets-agent \
