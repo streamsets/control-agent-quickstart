@@ -2,8 +2,6 @@
 
 source login.sh
 
-: ${CLUSTER_NAME:="streamsets-quickstart1"}
-
 # 1. Stop and Delete deployment if one is active
 if [[ -f "deployment.id" && -s "deployment.id" ]];
   then
@@ -72,5 +70,5 @@ kubectl delete namespace ${KUBE_NAMESPACE}
 echo "Deleted Namespace ${KUBE_NAMESPACE}"
 
 if [ -n "$DELETE_AKS_CLUSTER" ]; then
-  az group delete --name ${CLUSTER_NAME} --yes --no-wait
+  az group delete --name ${AZURE_RESOURCE_GROUP} --yes --no-wait
 fi

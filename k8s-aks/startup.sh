@@ -15,10 +15,8 @@ source login.sh
   --node-count "1" \
   --enable-addons monitoring \
   --generate-ssh-keys
-  
-  az aks get-credentials --resource-group ${AZURE_RESOURCE_GROUP} --name ${CLUSTER_NAME}
 fi
-
+az aks get-credentials --resource-group ${AZURE_RESOURCE_GROUP} --name ${CLUSTER_NAME}
 # Set the namespace
 kubectl create namespace ${KUBE_NAMESPACE}
 kubectl config set-context $(kubectl config current-context) --namespace=${KUBE_NAMESPACE}
