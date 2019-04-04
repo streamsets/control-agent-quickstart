@@ -14,7 +14,11 @@ if [ -n "$KUBE_CREATE_CLUSTER" ]; then
   # if set, this will also attempt to provision an EKS cluster
   echo creating new k8s cluster...
   echo ... creating vpc
-  aws cloudformation create-stack --region=${AWS_REGION} --stack-name ${KUBE_CLUSTER_NAME}-vpc --template-url $EKS_VPC_TEMPLATE
+  if [[ $EKS_VPC_TEMPLATE == http* ]]; then
+    aws cloudformation create-stack --region=${AWS_REGION} --stack-name ${KUBE_CLUSTER_NAME}-vpc --template-url $EKS_VPC_TEMPLATE
+  else
+    aws cloudformation create-stack --region=${AWS_REGION} --stack-name ${KUBE_CLUSTER_NAME}-vpc --template-body $EKS_VPC_TEMPLATE
+  fi
   aws cloudformation wait stack-create-complete --region=${AWS_REGION} --stack-name ${KUBE_CLUSTER_NAME}-vpc
   AWS_SEC_GRP=$(aws cloudformation describe-stacks --region ${AWS_REGION} --stack-name ${KUBE_CLUSTER_NAME}-vpc | jq -r '.Stacks[].Outputs[] | select(.OutputKey=="SecurityGroups").OutputValue')
   AWS_SUBNET_IDS=$(aws cloudformation describe-stacks --region ${AWS_REGION} --stack-name ${KUBE_CLUSTER_NAME}-vpc | jq -r '.Stacks[].Outputs[] | select(.OutputKey=="SubnetIds").OutputValue')
@@ -62,7 +66,7 @@ fi
 
 echo Configuring K8s Cluster
 echo ... configuring kubectl
-aws eks --region ${AWS_REGION} update-kubeconfig --name "${KUBE_CLUSTER_NAME}"echo ... create namespace
+aws eks --region ${AWS_REGION} update-kubeconfig --name "${KUBE_CLUSTER_NAME}"
 echo ... create namespace
 kubectl create namespace ${KUBE_NAMESPACE}
 echo ... set context
@@ -128,7 +132,8 @@ echo ... wait for traefik external ip address
 external_ip=""
 while [ -z $external_ip ]; do
     sleep 10
-    external_ip=$(kubectl get svc traefik-ingress-service -o json | jq -r 'select(.status.loadBalancer.ingress != null) | .status.loadBalancer.ingress[].ip')
+    #external_ip=$(kubectl get svc traefik-ingress-service -o json | jq -r 'select(.status.loadBalancer.ingress != null) | .status.loadBalancer.ingress[].ip')
+    external_ip=$(kubectl get svc traefik-ingress-service -o json | jq -r 'select(.status.loadBalancer.ingress != null) | .status.loadBalancer.ingress[].hostname')
 done
 echo "External Endpoint to Access Authoring SDC : ${external_ip}\n"
 

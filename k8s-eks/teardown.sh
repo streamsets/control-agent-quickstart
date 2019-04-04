@@ -36,12 +36,16 @@ if [[ -f "agent.id" && -s "agent.id" ]]; then
   rm -f agent.id
 fi
 
-# Set namespace
+echo Deconfigure Kubernetes
+echo ... configuring kubectl
+aws eks --region ${AWS_REGION} update-kubeconfig --name "${KUBE_CLUSTER_NAME}"
+
+echo ... Set namespace
 kubectl config set-context $(kubectl config current-context) --namespace=${KUBE_NAMESPACE}
 
-# Delete Authoring SDC Service
+echo ... Delete Authoring SDC Service
 kubectl delete -f authoring-sdc-svc.yaml
-echo "Deleted Authoring sdc service"
+echo "... Deleted Authoring sdc service"
 
 # Delete agent
 kubectl delete -f control-agent.yaml

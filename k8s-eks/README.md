@@ -1,4 +1,27 @@
 
+This example uses AWS EKS as the Kubernetes provider.
+
+## AWS Region and AvailabilityZones
+
+In addition to selecting a region that supports EKS, you may also need to consider the avaialability of host resources within the AvailabilityZones of the that Region.
+
+By default, this script leverage a default AWS-supplied Cloudformation template for the EKS VPCs.  This template is hard-coded to use the first three availablity zones: "a" "b" and "c".  If for some reason one of these zones is unavailable or has insufficient capacity, this script will fail.  (***Warning*** - Popular regions such as the us-east-1 Region will often have problems with limited availablity).
+
+When the a, b and c AvailabilityZones are not all available or lack sufficient resources, you have two options:
+  1. Select a different Region
+  2. Use a custom Cloudformation templates
+
+To implement option 2, you may copy the AWS-supplied template to a local file and then alter the pointers found under Resources / Subnet## / Properties AvailabilityZone.  As an example, file amazon-eks-vpc-sample-acd.yaml has been altered to use to the a, c and d AvailabilityZones (Warning - he us-east-1 ) an example that uses t
+
+Refer to the details of the EKS_VPC_TEMPLATE environment variable below for the location of the default template and how to configure script to use a local file.
+
+
+
+The The us-east-1 is of course popular region, but it also can have chonic availa popular region
+ The second option is supported by
+The us-east
+
+
 
 ## Prerequisites
 
@@ -49,7 +72,6 @@ AWS_KEYPAIR_NAME - An AWS Keypair that is used to start and access the EKS Nodes
 
 AWS_REGION - AWS Region to be used.
 - The script will throw an error if there is insufficient capacity in the selected Region.
-- *Warning* - The AWS supplied Cloudformation template for the EKS VPCs used by this script is hard coded to use the first three availablity zones ("a" "b" and "c").  If for some reason one of these zones is unavailable or has insufficient capacity, you will need to select a different region
 
 EKS_IAM_ROLE - ARN of IAM Role authorised to manage EKS instances
 
@@ -57,32 +79,37 @@ EKS_IAM_ROLE - ARN of IAM Role authorised to manage EKS instances
 ### Optional
 
 KUBE_CREATE_CLUSTER - Should a new K8s instance be created (Startup only)
-  - 1 = true
-  - 2 = false (default)
+  - Set (any value) = true
+  - Not set (default) = false
 
 KUBE_DELETE_CLUSTER - Should a new K8s instance be deleted (Teardown only)
-  - 1 = true
-  - 2 = false (default)
+  - Set (any value) = true
+  - Not set (default) = false
 
 KUBE_CLUSTER_NAME - Name of cluster to be created/used as seen in the EKS web UI
 
-EKS_NODE_GROUP_NAME - Name to K8s node group create by script be used.
-  - Default is "${KUBE_CLUSTER_NAME}-nodegrp-1"
-  - "Note" - This name is used to tag AWS Cloudformation stacks and ec2 instances.  It is not directly used in the operation or managemenent of K8s itself.
 
 EKS_VPC_TEMPLATE - Cloudformation template to create AWS VPC.
   - Default is "https://amazon-eks.s3-us-west-2.amazonaws.com/cloudformation/2019-02-11/amazon-eks-vpc-sample.yaml"}
+  - Also supports templates in local file.
+    - Example:
+      `EKS_VPC_TEMPLATE=file:///home/user/myvpctemplate.yaml`
+
+EKS_NODE_GRP_TEMPLATE - Cloudformation template to create K8S Nodes.
+  - Default is "https://amazon-eks.s3-us-west-2.amazonaws.com/cloudformation/2019-02-11/amazon-eks-nodegroup.yaml"}
 
 EKS_NODE_IMAGEID - The AMI to be used for K8s
   - Default is "ami-081099ec932b99961"  #amazon-eks-node-1.11-v20190211
   - *Warning* - Some versions of the AWS provided AMI for EKS have a bug that results in insufficient file handles for SDC.  See https://github.com/awslabs/amazon-eks-ami/issues/233 for more information.
 
-EKS_NODE_GRP_TEMPLATE - Cloudformation template to create K8S Nodes.
-  - Default is "https://amazon-eks.s3-us-west-2.amazonaws.com/cloudformation/2019-02-11/amazon-eks-nodegroup.yaml"}
-
 EKS_NODE_INSTANCETYPE - AWS Instance type to be use for K8S Nodes
   - Default is "t3.small"
 
-SDC_DOCKER_TAG -
+EKS_NODE_GROUP_NAME - Name to K8s node group create by script be used.
+  - Default is "${KUBE_CLUSTER_NAME}-nodegrp-1"
+  - "Note" - This name is used to tag AWS Cloudformation stacks and ec2 instances.  It is not directly used in the operation or managemenent of K8s itself.
+
+
+SDC_DOCKER_TAG - The version of SDC to be deployed
   - Default is "latest"
   - If you want an older version, refer to Dockerhub to see the full list of allowed values.
