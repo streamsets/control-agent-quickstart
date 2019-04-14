@@ -87,6 +87,7 @@ KUBE_DELETE_CLUSTER - Should a new K8s instance be deleted (Teardown only)
   - Not set (default) = false
 
 KUBE_CLUSTER_NAME - Name of cluster to be created/used as seen in the EKS web UI
+  - Default is "streamsets-quickstart"
 
 
 EKS_VPC_TEMPLATE - Cloudformation template to create AWS VPC.
@@ -113,3 +114,13 @@ EKS_NODE_GROUP_NAME - Name to K8s node group create by script be used.
 SDC_DOCKER_TAG - The version of SDC to be deployed
   - Default is "latest"
   - If you want an older version, refer to Dockerhub to see the full list of allowed values.
+
+
+SCH_AGENT_NAME - SCH User Id within Org with admin rights.  Format should be <user>@<org>
+  - Default is ${KUBE_CLUSTER_NAME}-schagent
+
+SCH_DEPLOYMENT_NAME - SCH Org you wish to connect to K8s.
+  - Default - ${SCH_AGENT_NAME}-deployment-01
+
+SCH_DEPLOYMENT_LABELS - Command delimted list of lables to be applied to provisioned Data Collector instances.
+  - Default - all,${KUBE_CLUSTER_NAME},${SCH_AGENT_NAME},${SCH_DEPLOYMENT_NAME},${SDC_DOCKERTAG}

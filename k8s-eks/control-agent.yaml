@@ -1,7 +1,7 @@
 apiVersion: extensions/v1beta1
 kind: Deployment
 metadata:
-  name: quickstartagent
+  name: @@agent-name@@
 spec:
   replicas: 1
   template:
@@ -11,7 +11,7 @@ spec:
     spec:
       serviceAccountName: streamsets-agent
       containers:
-      - name: sch-control-agent
+      - name: @@agent-name@@
         image: streamsets/control-agent:latest
         env:
         - name: HOST
@@ -38,7 +38,7 @@ spec:
               name: sch-agent-creds
               key: dpm_agent_token_string
         - name: dpm_agent_name
-          value: quickstartagent
+          value: @@agent-name@@
         - name: dpm_agent_orgId
           valueFrom:
             configMapKeyRef:

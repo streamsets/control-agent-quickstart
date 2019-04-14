@@ -9,6 +9,10 @@ source eks-env.sh
 ######################
 
 : ${KUBE_CLUSTER_NAME:="streamsets-quickstart"}
+if [ -z ${SCH_AGENT_NAME+x} ]; then export SCH_AGENT_NAME=${KUBE_CLUSTER_NAME}-schagent; fi
+if [ -z ${SCH_DEPLOYMENT_NAME+x} ]; then export SCH_DEPLOYMENT_NAME=${SCH_AGENT_NAME}-deployment-01; fi
+if [ -z ${SCH_DEPLOYMENT_LABELS+x} ]; then export SCH_DEPLOYMENT_LABELS=all,${KUBE_CLUSTER_NAME},${SCH_AGENT_NAME},${SCH_DEPLOYMENT_NAME},${SDC_DOCKERTAG}; fi
+
 EKS_NODE_GROUP_NAME=${KUBE_CLUSTER_NAME}-nodegrp-1
 if [ -n "$KUBE_CREATE_CLUSTER" ]; then
   # if set, this will also attempt to provision an EKS cluster
@@ -52,8 +56,8 @@ if [ -n "$KUBE_CREATE_CLUSTER" ]; then
          ParameterKey=KeyName,ParameterValue=${AWS_KEYPAIR_NAME} \
          ParameterKey=NodeImageId,ParameterValue=${EKS_NODE_IMAGEID} \
          ParameterKey=NodeInstanceType,,ParameterValue=${EKS_NODE_INSTANCETYPE} \
-         ParameterKey=NodeGroupName,ParameterValue=${EKS_NODE_GROUP_NAME} 
-  
+         ParameterKey=NodeGroupName,ParameterValue=${EKS_NODE_GROUP_NAME}
+
   echo ... waiting for nodes to start
   aws cloudformation wait stack-create-complete --region=${AWS_REGION} --stack-name ${EKS_NODE_GROUP_NAME}
 
@@ -176,7 +180,8 @@ kubectl create configmap streamsets-config \
 
 # 4. Launch Agent
 echo ... Launch Agent
-kubectl create -f control-agent.yaml
+cat control-agent.yaml |  sed -e 's/@@agent-name@@/'${SCH_AGENT_NAME}'/g' > _tmp_control-agent.yaml
+kubectl create -f _tmp_control-agent.yaml
 
 # 5. wait for agent to be registered with SCH
 echo ... wait for agent to be registered with SCH
@@ -190,11 +195,11 @@ echo "DPM Agent \"${temp_agent_Id}\" successfully registered with SCH"
 #######################################
 # Create Deployment for Authoring SDC #
 #######################################
-echo Create Deployment for Authoring SDC
+echo Create Deployment ${SCH_DEPLOYMENT_NAME} with labels: ${SCH_DEPLOYMENT_LABELS}
+deployment_name=${SCH_DEPLOYMENT_NAME}
 
 # 1. create deployment
-deployment_name="authoring-sdc"
-DEP_ID=$(curl -s -X PUT -d "{\"name\":\"${deployment_name}\",\"description\":\"Authoring sdc\",\"labels\":[\"authoring-sdc\"],\"numInstances\":1,\"spec\":\"apiVersion: extensions/v1beta1\nkind: Deployment\nmetadata:\n  name: authoring-datacollector\n  namespace: ${KUBE_NAMESPACE}\nspec:\n  replicas: 1\n  template:\n    metadata:\n      labels:\n        app : authoring-datacollector\n    spec:\n      containers:\n      - name : datacollector\n        image: streamsets/datacollector:${SDC_DOCKERTAG}\n        ports:\n        - containerPort: 18630\n        env:\n        - name: SDC_CONF_SDC_BASE_HTTP_URL\n          value: https://${external_ip}:443\n        - name: SDC_CONF_HTTP_ENABLE_FORWARDED_REQUESTS\n          value: true\",\"agentId\":\"${agent_id}\"}" "${SCH_URL}/provisioning/rest/v1/deployments" --header "Content-Type:application/json" --header "X-Requested-By:SDC" --header "X-SS-REST-CALL:true" --header "X-SS-User-Auth-Token:${SCH_TOKEN}" | jq -r '.id')
+DEP_ID=$(curl -s -X PUT -d "{\"name\":\"${deployment_name}\",\"description\":\"Authoring sdc\",\"labels\":[\"${SCH_DEPLOYMENT_LABELS}\"],\"numInstances\":1,\"spec\":\"apiVersion: extensions/v1beta1\nkind: Deployment\nmetadata:\n  name: authoring-datacollector\n  namespace: ${KUBE_NAMESPACE}\nspec:\n  replicas: 1\n  template:\n    metadata:\n      labels:\n        app : authoring-datacollector\n    spec:\n      containers:\n      - name : datacollector\n        image: streamsets/datacollector:${SDC_DOCKERTAG}\n        ports:\n        - containerPort: 18630\n        env:\n        - name: SDC_CONF_SDC_BASE_HTTP_URL\n          value: https://${external_ip}:443\n        - name: SDC_CONF_HTTP_ENABLE_FORWARDED_REQUESTS\n          value: true\",\"agentId\":\"${agent_id}\"}" "${SCH_URL}/provisioning/rest/v1/deployments" --header "Content-Type:application/json" --header "X-Requested-By:SDC" --header "X-SS-REST-CALL:true" --header "X-SS-User-Auth-Token:${SCH_TOKEN}" | jq -r '.id')
 echo "Successfully created deployment with ID \"${DEP_ID}\""
 
 # 2. Store Deployment Id in a file for use by the teardwon script.
