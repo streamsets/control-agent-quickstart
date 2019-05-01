@@ -111,6 +111,9 @@ EKS_NODE_GROUP_NAME - Name to K8s node group create by script be used.
   - "Note" - This name is used to tag AWS Cloudformation stacks and ec2 instances.  It is not directly used in the operation or managemenent of K8s itself.
 
 
+SDC_DOCKER_IMAGE - The Name of the Docker iamge to be used.
+  - Default is "streamsets/datacollector"
+
 SDC_DOCKER_TAG - The version of SDC to be deployed
   - Default is "latest"
   - If you want an older version, refer to Dockerhub to see the full list of allowed values.

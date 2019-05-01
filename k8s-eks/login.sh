@@ -55,9 +55,9 @@ if [ -z "$SCH_TOKEN" ]; then
   exit 1
 fi
 
+: ${SDC_DOCKER_IMAGE:=streamsets/datacollector}
 
-: ${SDC_DOCKERTAG:=latest}
+: ${SDC_DOCKER_TAG:=latest}
 #: ${SDC_DOCKERTAG:=3.0.0.0}
 
 : ${KUBE_NAMESPACE:="streamsets"}
-
