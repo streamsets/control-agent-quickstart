@@ -38,6 +38,7 @@ if [ -z "$SCH_USER" ]; then
   echo "Please set SCH_USER to your username in the form 'user@org'"
   exit 1
 fi
+#TODO veify user's org matches $SCH_ORG
 
 if [ -z "$SCH_PASSWORD" ]; then
   show_usage

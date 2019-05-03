@@ -81,11 +81,9 @@ EKS_IAM_ROLE - ARN of IAM Role authorised to manage EKS instances
 KUBE_CREATE_CLUSTER - Should a new K8s instance be created (Startup only)
   - Set (any value) = true
   - Not set (default) = false
-
 KUBE_DELETE_CLUSTER - Should a new K8s instance be deleted (Teardown only)
   - Set (any value) = true
   - Not set (default) = false
-
 KUBE_CLUSTER_NAME - Name of cluster to be created/used as seen in the EKS web UI
   - Default is "streamsets-quickstart"
 
@@ -98,14 +96,11 @@ EKS_VPC_TEMPLATE - Cloudformation template to create AWS VPC.
 
 EKS_NODE_GRP_TEMPLATE - Cloudformation template to create K8S Nodes.
   - Default is "https://amazon-eks.s3-us-west-2.amazonaws.com/cloudformation/2019-02-11/amazon-eks-nodegroup.yaml"}
-
 EKS_NODE_IMAGEID - The AMI to be used for K8s
   - Default is "ami-081099ec932b99961"  #amazon-eks-node-1.11-v20190211
   - *Warning* - Some versions of the AWS provided AMI for EKS have a bug that results in insufficient file handles for SDC.  See https://github.com/awslabs/amazon-eks-ami/issues/233 for more information.
-
 EKS_NODE_INSTANCETYPE - AWS Instance type to be use for K8S Nodes
   - Default is "t3.small"
-
 EKS_NODE_GROUP_NAME - Name to K8s node group create by script be used.
   - Default is "${KUBE_CLUSTER_NAME}-nodegrp-1"
   - "Note" - This name is used to tag AWS Cloudformation stacks and ec2 instances.  It is not directly used in the operation or managemenent of K8s itself.
@@ -113,7 +108,6 @@ EKS_NODE_GROUP_NAME - Name to K8s node group create by script be used.
 
 SDC_DOCKER_IMAGE - The Name of the Docker iamge to be used.
   - Default is "streamsets/datacollector"
-
 SDC_DOCKER_TAG - The version of SDC to be deployed
   - Default is "latest"
   - If you want an older version, refer to Dockerhub to see the full list of allowed values.
@@ -121,9 +115,15 @@ SDC_DOCKER_TAG - The version of SDC to be deployed
 
 SCH_AGENT_NAME - SCH User Id within Org with admin rights.  Format should be <user>@<org>
   - Default is ${KUBE_CLUSTER_NAME}-schagent
-
 SCH_DEPLOYMENT_NAME - SCH Org you wish to connect to K8s.
   - Default - ${SCH_AGENT_NAME}-deployment-01
-
 SCH_DEPLOYMENT_LABELS - Command delimted list of lables to be applied to provisioned Data Collector instances.
   - Default - all,${KUBE_CLUSTER_NAME},${SCH_AGENT_NAME},${SCH_DEPLOYMENT_NAME},${SDC_DOCKERTAG}
+
+
+DOCKER_USER - User ID for your Docker Hub account
+  - Only required if you will be using a customer Docker image stored in a private repository
+DOCKER_PASSWORD - Password for your Docker Hub account
+  - Only required if you will be using a customer Docker image stored in a private repository
+DOCKER_EMAIL - Email associated with your Docker Hub account
+  - Only required if you will be using a customer Docker image stored in a private repository

@@ -157,6 +157,7 @@ echo Setup Control Agent
 # 1. Get a token for Agent from SCH and store it in a secret
 echo ... Get a token for Agent from SCH and store it in a secret
 AGENT_TOKEN=$(curl -s -X PUT -d "{\"organization\": \"${SCH_ORG}\", \"componentType\" : \"provisioning-agent\", \"numberOfComponents\" : 1, \"active\" : true}" ${SCH_URL}/security/rest/v1/organization/${SCH_ORG}/components --header "Content-Type:application/json" --header "X-Requested-By:SDC" --header "X-SS-REST-CALL:true" --header "X-SS-User-Auth-Token:${SCH_TOKEN}" | jq '.[0].fullAuthToken')
+#TODO Capture "Issues" in curl response
 if [ -z "$AGENT_TOKEN" ]; then
   echo "Failed to generate control agent token."
   echo "Please verify you have Provisioning Operator permissions in SCH"
@@ -198,13 +199,21 @@ echo "DPM Agent \"${temp_agent_Id}\" successfully registered with SCH"
 echo Create Deployment ${SCH_DEPLOYMENT_NAME} with labels: ${SCH_DEPLOYMENT_LABELS}
 deployment_name=${SCH_DEPLOYMENT_NAME}
 
+# 0. create Secret for Docker credentials (required if private repository)
+kubectl create secret docker-registry dockerstore --docker-username=${DOCKER_USER} --docker-password=${DOCKER_PASSWORD} --docker-email=${DOCKER_EMAIL}
+
 # 1. create deployment
-DEP_ID=$(curl -s -X PUT -d "{\"name\":\"${deployment_name}\",\"description\":\"Authoring sdc\",\"labels\":[\"${SCH_DEPLOYMENT_LABELS}\"],\"numInstances\":1,\"spec\":\"apiVersion: extensions/v1beta1\nkind: Deployment\nmetadata:\n  name: authoring-datacollector\n  namespace: ${KUBE_NAMESPACE}\nspec:\n  replicas: 1\n  template:\n    metadata:\n      labels:\n        app : authoring-datacollector\n    spec:\n      containers:\n      - name : datacollector\n        image: ${SDC_DOCKER_IMAGE}:${SDC_DOCKER_TAG}\n        ports:\n        - containerPort: 18630\n        env:\n        - name: SDC_CONF_SDC_BASE_HTTP_URL\n          value: https://${external_ip}:443\n        - name: SDC_CONF_HTTP_ENABLE_FORWARDED_REQUESTS\n          value: true\",\"agentId\":\"${agent_id}\"}" "${SCH_URL}/provisioning/rest/v1/deployments" --header "Content-Type:application/json" --header "X-Requested-By:SDC" --header "X-SS-REST-CALL:true" --header "X-SS-User-Auth-Token:${SCH_TOKEN}" | jq -r '.id')
+export KUBE_NAMESPACE
+export SDC_DOCKER_IMAGE
+export SDC_DOCKER_TAG
+export external_ip
+cat deployment.yaml | envsubst | sed -E ':a;N;$!ba;s/\r{0,1}\n/\\n/g' > _tmp_deployment.yaml
+DEP_ID=$(curl -s -X PUT -d "{\"name\":\"${deployment_name}\",\"description\":\"Authoring sdc\",\"labels\":[\"${SCH_DEPLOYMENT_LABELS}\"],\"numInstances\":1,\"spec\":\"$(cat _tmp_deployment.yaml)\",\"agentId\":\"${agent_id}\"}" "${SCH_URL}/provisioning/rest/v1/deployments" --header "Content-Type:application/json" --header "X-Requested-By:SDC" --header "X-SS-REST-CALL:true" --header "X-SS-User-Auth-Token:${SCH_TOKEN}" | jq -r '.id') || { echo 'ERROR: Failed to create deployment in SCH' ; exit 1; }
 echo "Successfully created deployment with ID \"${DEP_ID}\""
 
 # 2. Store Deployment Id in a file for use by the teardwon script.
 echo ${DEP_ID} > deployment.id
 
 # 3. Start Deployment
-curl -s -X POST "${SCH_URL}/provisioning/rest/v1/deployment/${DEP_ID}/start?dpmAgentId=${agent_id}" --header "Content-Type:application/json" --header "X-Requested-By:SDC" --header "X-SS-REST-CALL:true" --header "X-SS-User-Auth-Token:${SCH_TOKEN}"
+curl -s -X POST "${SCH_URL}/provisioning/rest/v1/deployment/${DEP_ID}/start?dpmAgentId=${agent_id}" --header "Content-Type:application/json" --header "X-Requested-By:SDC" --header "X-SS-REST-CALL:true" --header "X-SS-User-Auth-Token:${SCH_TOKEN}" || { echo 'ERROR: Failed to start deployment in SCH' ; exit 1; }
 echo "Successfully started deployment \"${deployment_name}\" on Agent \"${agent_id}\""
