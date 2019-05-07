@@ -2,14 +2,14 @@
 apiVersion: extensions/v1beta1
 kind: Deployment
 metadata:
-  name: authoring-datacollector
+  name: ${SCH_DEPLOYMENT_NAME}
   namespace: ${KUBE_NAMESPACE}
 spec:
   replicas: 1
   template:
     metadata:
       labels:
-        app : authoring-datacollector
+        app : datacollector-${SCH_DEPLOYMENT_NAME}
     spec:
       containers:
       - name : datacollector

@@ -1,7 +1,7 @@
 apiVersion: extensions/v1beta1
 kind: Deployment
 metadata:
-  name: @@agent-name@@
+  name: ${SCH_AGENT_NAME}
 spec:
   replicas: 1
   template:
@@ -11,7 +11,7 @@ spec:
     spec:
       serviceAccountName: streamsets-agent
       containers:
-      - name: @@agent-name@@
+      - name: ${SCH_AGENT_NAME}
         image: streamsets/control-agent:latest
         env:
         - name: HOST
@@ -25,24 +25,24 @@ spec:
         - name: dpm_agent_dpm_baseurl
           valueFrom:
             configMapKeyRef:
-              name: streamsets-config
+              name: ${SCH_AGENT_NAME}-config
               key: sch_url
         - name: dpm_agent_component_id
           valueFrom:
             configMapKeyRef:
-              name: streamsets-config
+              name: ${SCH_AGENT_NAME}-config
               key: agent_id
         - name: dpm_agent_token_string
           valueFrom:
             secretKeyRef:
-              name: sch-agent-creds
+              name: ${SCH_AGENT_NAME}-creds
               key: dpm_agent_token_string
         - name: dpm_agent_name
-          value: @@agent-name@@
+          value: ${SCH_AGENT_NAME}
         - name: dpm_agent_orgId
           valueFrom:
             configMapKeyRef:
-              name: streamsets-config
+              name: ${SCH_AGENT_NAME}-config
               key: org
         - name: dpm_agent_secret
-          value: compsecret
+          value: ${SCH_AGENT_NAME}-compsecret

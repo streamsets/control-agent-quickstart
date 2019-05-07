@@ -2,22 +2,21 @@
 
 if [ $# -eq 0 ]
   then
-    echo "Usage: create-deployment.sh <deployment name suffix>"
+    echo "Usage: startup-deployment.sh <deployment name suffix>"
     exit
 fi
 
 
 source login.sh
-echo DEBUG login.sh complete
 source eks-env.sh
 
 ######################
-# Create EKS Cluster #
+# Initialize
 ######################
 
 : ${KUBE_CLUSTER_NAME:="streamsets-quickstart"}
-if [ -z ${SCH_AGENT_NAME+x} ]; then export SCH_AGENT_NAME=${KUBE_CLUSTER_NAME}-schagent; fi
-if [ -z ${SCH_DEPLOYMENT_NAME+x} ]; then export SCH_DEPLOYMENT_NAME=${SCH_AGENT_NAME}-deployment-$1; fi
+if [ -z ${SCH_AGENT_NAME+x} ]; then export SCH_AGENT_NAME=${KUBE_CLUSTER_NAME}-schagent01; fi
+if [ -z ${SCH_DEPLOYMENT_NAME+x} ]; then export SCH_DEPLOYMENT_NAME=${SCH_AGENT_NAME}-deployment${1}; fi
 if [ -z ${SCH_DEPLOYMENT_LABELS+x} ]; then export SCH_DEPLOYMENT_LABELS=all,${KUBE_CLUSTER_NAME},${SCH_AGENT_NAME},${SCH_DEPLOYMENT_NAME},${SDC_DOCKERTAG}; fi
 
 echo ... wait for traefik external ip address
@@ -34,7 +33,7 @@ while [ 1 ]; do
 done
 echo "External Endpoint to Access Authoring SDC : ${external_ip}\n"
 
-agent_id="`cat agent.id`"
+agent_id="`cat agent-${SCH_AGENT_NAME}.id`"
 echo Agent ID: ${agent_id}
 echo K8S Namespace: ${KUBE_NAMESPACE}
 echo Docker Image: ${SDC_DOCKER_IMAGE}:${SDC_DOCKER_TAG}
@@ -47,7 +46,10 @@ echo Create Deployment ${SCH_DEPLOYMENT_NAME} with labels: ${SCH_DEPLOYMENT_LABE
 deployment_name=${SCH_DEPLOYMENT_NAME}
 
 # 0. create Secret for Docker credentials (required if private repository)
-kubectl create secret docker-registry dockerstore --docker-username=${DOCKER_USER} --docker-password=${DOCKER_PASSWORD} --docker-email=${DOCKER_EMAIL}
+kubectl delete secret dockerstore \
+|| { echo 'WARNING: Unable to delete Docker credentials.  If this a new provisioning agent this is expected'; }
+kubectl create secret docker-registry dockerstore --docker-username=${DOCKER_USER} --docker-password=${DOCKER_PASSWORD} --docker-email=${DOCKER_EMAIL} \
+|| { echo 'ERROR: Failed to create secret for Docker credentials in Kubernetes' ; exit 1; }
 
 # 1. create deployment
 
@@ -60,7 +62,7 @@ DEP_ID=$(curl -s -X PUT -d "{\"name\":\"${deployment_name}\",\"description\":\"A
 echo "Successfully created deployment with ID \"${DEP_ID}\""
 
 # 2. Store Deployment Id in a file for use by the teardwon script.
-echo ${DEP_ID} > deployment_${SCH_DEPLOYMENT_NAME}.id
+echo ${DEP_ID} > deployment-${SCH_DEPLOYMENT_NAME}.id
 
 # 3. Start Deployment
 curl -s -X POST "${SCH_URL}/provisioning/rest/v1/deployment/${DEP_ID}/start?dpmAgentId=${agent_id}" --header "Content-Type:application/json" --header "X-Requested-By:SDC" --header "X-SS-REST-CALL:true" --header "X-SS-User-Auth-Token:${SCH_TOKEN}" || { echo 'ERROR: Failed to start deployment in SCH' ; exit 1; }

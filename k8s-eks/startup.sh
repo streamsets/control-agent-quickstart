@@ -9,12 +9,12 @@ source eks-env.sh
 ######################
 
 : ${KUBE_CLUSTER_NAME:="streamsets-quickstart"}
-if [ -z ${SCH_AGENT_NAME+x} ]; then export SCH_AGENT_NAME=${KUBE_CLUSTER_NAME}-schagent; fi
-if [ -z ${SCH_DEPLOYMENT_NAME+x} ]; then export SCH_DEPLOYMENT_NAME=${SCH_AGENT_NAME}-deployment-01; fi
-if [ -z ${SCH_DEPLOYMENT_LABELS+x} ]; then export SCH_DEPLOYMENT_LABELS=all,${KUBE_CLUSTER_NAME},${SCH_AGENT_NAME},${SCH_DEPLOYMENT_NAME},${SDC_DOCKERTAG}; fi
+#if [ -z ${SCH_AGENT_NAME+x} ]; then export SCH_AGENT_NAME=${KUBE_CLUSTER_NAME}-schagent; fi
+#if [ -z ${SCH_DEPLOYMENT_NAME+x} ]; then export SCH_DEPLOYMENT_NAME=${SCH_AGENT_NAME}-deployment-01; fi
+#if [ -z ${SCH_DEPLOYMENT_LABELS+x} ]; then export SCH_DEPLOYMENT_LABELS=all,${KUBE_CLUSTER_NAME},${SCH_AGENT_NAME},${SCH_DEPLOYMENT_NAME},${SDC_DOCKERTAG}; fi
 
 EKS_NODE_GROUP_NAME=${KUBE_CLUSTER_NAME}-nodegrp-1
-if [ -n "$KUBE_CREATE_CLUSTER" ]; then
+if [ "$KUBE_CREATE_CLUSTER" == "1" ]; then
   # if set, this will also attempt to provision an EKS cluster
   echo creating new k8s cluster...
   echo ... creating vpc
@@ -70,11 +70,11 @@ fi
 
 echo Configuring K8s Cluster
 echo ... configuring kubectl
-aws eks --region ${AWS_REGION} update-kubeconfig --name "${KUBE_CLUSTER_NAME}"
+aws eks --region ${AWS_REGION} update-kubeconfig --name "${KUBE_CLUSTER_NAME}" || { echo 'ERROR: Failed to configure kubectl' ; exit 1; }
 echo ... create namespace
-kubectl create namespace ${KUBE_NAMESPACE}
+kubectl create namespace ${KUBE_NAMESPACE} || { echo 'ERROR: Failed to create namespace in Kubernetes' ; exit 1; }
 echo ... set context
-kubectl config set-context $(kubectl config current-context) --namespace=${KUBE_NAMESPACE}
+kubectl config set-context $(kubectl config current-context) --namespace=${KUBE_NAMESPACE} || { echo 'ERROR: Failed to set kubectl context' ; exit 1; }
 
 ########################################################################
 # Setup Service Account with roles to read required kubernetes objects #
@@ -82,28 +82,34 @@ kubectl config set-context $(kubectl config current-context) --namespace=${KUBE_
 
 echo Setup Service Account
 echo ... create service acount
-kubectl create serviceaccount streamsets-agent --namespace=${KUBE_NAMESPACE}
+kubectl create serviceaccount streamsets-agent --namespace=${KUBE_NAMESPACE} || { echo 'ERROR: Failed to create serviceaccount in Kubernetes' ; exit 1; }
+
 echo ... create role
 kubectl create role streamsets-agent \
     --verb=get,list,create,update,delete,patch \
     --resource=pods,secrets,replicasets,deployments,ingresses,services,horizontalpodautoscalers \
-    --namespace=${KUBE_NAMESPACE}
+    --namespace=${KUBE_NAMESPACE} \
+    || { echo 'ERROR: Failed to create role in Kubernetes' ; exit 1; }
 echo ... create rolebining
 kubectl create rolebinding streamsets-agent \
     --role=streamsets-agent \
     --serviceaccount=${KUBE_NAMESPACE}:streamsets-agent \
-    --namespace=${KUBE_NAMESPACE}
+    --namespace=${KUBE_NAMESPACE} \
+    || { echo 'ERROR: Failed to create rolebinding in Kubernetes' ; exit 1; }
 
 echo ... create serviceaccount
-kubectl create serviceaccount traefik-ingress-controller
+kubectl create serviceaccount traefik-ingress-controller || { echo 'ERROR: Failed to create serviceaccount in Kubernetes' ; exit 1; }
+
 echo ... create clusterrole
 kubectl create clusterrole traefik-ingress-controller \
     --verb=get,list,watch \
-    --resource=endpoints,ingresses.extensions,services,secrets
+    --resource=endpoints,ingresses.extensions,services,secrets \
+    || { echo 'ERROR: Failed to create clusterrole in Kubernetes' ; exit 1; }
 echo ... create clusterrolebinding
 kubectl create clusterrolebinding traefik-ingress-controller \
     --clusterrole=traefik-ingress-controller \
-    --serviceaccount=${KUBE_NAMESPACE}:traefik-ingress-controller
+    --serviceaccount=${KUBE_NAMESPACE}:traefik-ingress-controller \
+    || { echo 'ERROR: Failed to create clusterrolebinding in Kubernetes' ; exit 1; }
 
 ####################################
 # Setup Traefik Ingress Controller #
@@ -118,18 +124,20 @@ openssl req -newkey rsa:2048 \
     -x509 \
     -days 365 \
     -out tls.crt \
-    -subj "/C=US/ST=California/L=San Francisco/O=My Company/CN=mycompany.com"
+    -subj "/C=US/ST=California/L=San Francisco/O=My Company/CN=mycompany.com" \
+    || { echo 'ERROR: Failed to generate self-signed certificate' ; exit 1; }
 kubectl create secret generic traefik-cert \
     --from-file=tls.crt \
-    --from-file=tls.key
+    --from-file=tls.key \
+    || { echo 'ERROR: Failed to create secret for certificate in Kubernetes' ; exit 1; }
 
 # 2. Create traefik configuration to handle https
 echo ... create configmap
-kubectl create configmap traefik-conf --from-file=traefik.toml
+kubectl create configmap traefik-conf --from-file=traefik.toml || { echo 'ERROR: Failed to create configmap in Kubernetes' ; exit 1; }
 
 # 3. Configure & create traefik service
 echo ... create traefik service
-kubectl create -f traefik-dep.yaml --namespace=${KUBE_NAMESPACE}
+kubectl create -f traefik-dep.yaml --namespace=${KUBE_NAMESPACE} || { echo 'ERROR: Failed to traefik service in Kubernetes' ; exit 1; }
 
 # 4. Wait for an external endpoint to be assigned
 echo ... wait for traefik external ip address
@@ -145,13 +153,23 @@ echo "External Endpoint to Access Authoring SDC : ${external_ip}\n"
 # Create a service and ingress for Authoring SDC #
 ##################################################
 
-echo Create a service and ingress for Authoriing SDC
+echo Create a service and ingress for Authoring SDC
 # 1. Create Authoring SDC Service and Ingress
-kubectl create -f authoring-sdc-svc.yaml
+kubectl create -f authoring-sdc-svc.yaml  || { echo 'ERROR: Failed to create service and ingress for SDC instance' ; exit 1; }
+
 
 #######################
 # Setup Control Agent #
 #######################
+./startup-agent.sh 01
+exit
+
+
+#--------------------------------------------------------
+
+
+
+
 echo Setup Control Agent
 
 # 1. Get a token for Agent from SCH and store it in a secret
@@ -164,11 +182,13 @@ if [ -z "$AGENT_TOKEN" ]; then
   exit 1
 fi
 kubectl create secret generic sch-agent-creds \
-    --from-literal=dpm_agent_token_string=${AGENT_TOKEN}
+    --from-literal=dpm_agent_token_string=${AGENT_TOKEN} \
+    || { echo 'ERROR: Failed to create SCH credentials secret in Kubernetes' ; exit 1; }
 
 # 2. Create secret for agent to store key pair
 echo ... Create secret for agent to store key pair
-kubectl create secret generic compsecret
+kubectl create secret generic compsecret \
+|| { echo 'ERROR: Failed to create agent keypair secret in Kubernetes' ; exit 1; }
 
 # 3. Create config map to store configuration referenced by the agent yaml
 echo ... Create config map to store configuration referenced by the agent yaml
@@ -177,12 +197,13 @@ echo ${agent_id} > agent.id
 kubectl create configmap streamsets-config \
     --from-literal=org=${SCH_ORG} \
     --from-literal=sch_url=${SCH_URL} \
-    --from-literal=agent_id=${agent_id}
+    --from-literal=agent_id=${agent_id} \
+    || { echo 'ERROR: Failed to create configmap in Kubernetes' ; exit 1; }
 
 # 4. Launch Agent
 echo ... Launch Agent
 cat control-agent.yaml |  sed -e 's/@@agent-name@@/'${SCH_AGENT_NAME}'/g' > _tmp_control-agent.yaml
-kubectl create -f _tmp_control-agent.yaml
+kubectl create -f _tmp_control-agent.yaml || { echo 'ERROR: Failed to launch Streamsets Control Agent in Kubernetes' ; exit 1; }
 
 # 5. wait for agent to be registered with SCH
 echo ... wait for agent to be registered with SCH
@@ -200,7 +221,8 @@ echo Create Deployment ${SCH_DEPLOYMENT_NAME} with labels: ${SCH_DEPLOYMENT_LABE
 deployment_name=${SCH_DEPLOYMENT_NAME}
 
 # 0. create Secret for Docker credentials (required if private repository)
-kubectl create secret docker-registry dockerstore --docker-username=${DOCKER_USER} --docker-password=${DOCKER_PASSWORD} --docker-email=${DOCKER_EMAIL}
+kubectl create secret docker-registry dockerstore --docker-username=${DOCKER_USER} --docker-password=${DOCKER_PASSWORD} --docker-email=${DOCKER_EMAIL} \
+|| { echo 'ERROR: Failed to create secret for Docker credentials in Kubernetes' ; exit 1; }
 
 # 1. create deployment
 export KUBE_NAMESPACE

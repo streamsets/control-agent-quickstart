@@ -36,29 +36,63 @@ The us-east
 
 ## Usage
 
-### Startup
+1. Create an environment script that sets all the desired environment values.
+  - See below for more details on the possible environment variables and see
+    the file sample-env.sh for a minimal example.
+2. Run the one of the action scripts below.
 
-To launch the quick start with a fresh Kubernetes cluster, run the following command:
-~~~
-SCH_ORG=<org> SCH_USER=<user>@<org> SCH_PASSWORD=<password> KUBE_NAMESPACE="streamsets" CREATE_GKE_CLUSTER=1 GKE_CLUSTER_NAME=<your_cluster_name> ./startup.sh
-~~~
+  TIP: Create a resuable environment script is recommnded.  But if you wish to bypass this step you can combine both of the above steps into a single command using a form which looks something like:
+    ~~~
+    SCH_ORG=<org> SCH_USER=<user>@<org> SCH_PASSWORD=<password> KUBE_NAMESPACE="streamsets" CREATE_GKE_CLUSTER=1 GKE_CLUSTER_NAME=<your_cluster_name> ./startup.sh
+    ~~~
 
-To reuse an existing cluster for the quick start, run the following commands:
-~~~
-SCH_ORG=<org> SCH_USER=<user>@<org> SCH_PASSWORD=<password> KUBE_NAMESPACE="streamsets" ./startup.sh
-~~~
+## Action Scripts
 
-### Teardown
+#### startup.sh
 
-To delete the quick start with AND the Kubernetes cluster, run the following command:
-~~~
-SCH_ORG=<org> SCH_USER=<user>@<org> SCH_PASSWORD=<password> KUBE_DELETE_CLUSTER=1 KUBE_CLUSTER_NAME=<your_cluster_name> ./teardown.sh
-~~~
+  - Starts a EKS Cluster, EC2 worker nodes, SCH Provisioning agent and SCH Deployment   
 
-To delete only the control agent setup by leave the K8s cluster in place, run the following commands:
-~~~
-SCH_ORG=<org> SCH_USER=<user>@<org> SCH_PASSWORD=<password> ./teardown.sh
-~~~
+  Example:
+  ~~~
+  ./startup.sh
+  ~~~
+
+#### startup-agent.sh <suffix>
+  - Uses an existing EKS cluster and worker nodes.  Starts SCH Provisioning agent and SCH Deployment.  
+
+  The name of the existing cluster is defined by the environment variable ${KUBE_CLUSTER_NAME} (see below for more details).
+
+  The <suffix> parameter defines a unique string to be appended to the end of the agent name.
+
+  Example:
+    ~~~
+    ./startup-agent.sh 02
+    ~~~
+
+   Note: The agent that is by deafule created with the original cluster using the startup.sh scipt is "01"
+
+#### teardown.sh
+
+   - Deletes an EKS Cluster, and any EC2 worker nodes, SCH Provisioning agent and SCH Deployment defined on that cluster   
+
+   Example:
+   ~~~
+   ./teardown.sh
+   ~~~
+
+#### teardown-agent.sh <suffix>
+  - Deletes an SCH Provisioning agent and any dependent SCDeployments.  
+
+  The name of the existing cluster is defined by thenvironment variable ${KUBE_CLUSTER_NAME} (see below fomore details).
+
+  The <suffix> parameter defines a unique string to bappended to the end of the agent name.
+
+  Example:
+   ~~~
+   ./teardown-agent.sh 02
+   ~~~
+
+  Note: The agent that is created by default with the original clusteusing the startup.sh scipt is "01"
 
 ## Enviroment Variables:
 
