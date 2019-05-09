@@ -6,6 +6,7 @@
 : ${EKS_VPC_TEMPLATE:="https://amazon-eks.s3-us-west-2.amazonaws.com/cloudformation/2019-02-11/amazon-eks-vpc-sample.yaml"}
 
 : ${EKS_NODE_INSTANCETYPE:="t3.small"}
+: ${EKS_NODE_INITIALCOUNT:="3"}
 
 : ${EKS_NODE_GRP_TEMPLATE:="https://amazon-eks.s3-us-west-2.amazonaws.com/cloudformation/2019-02-11/amazon-eks-nodegroup.yaml"}
 

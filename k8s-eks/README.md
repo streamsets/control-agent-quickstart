@@ -36,15 +36,16 @@ The us-east
 
 ## Usage
 
-1. Create an environment script that sets all the desired environment values.
-  - See below for more details on the possible environment variables and see
-    the file sample-env.sh for a minimal example.
+1. Create and source an environment script that sets all the desired environment values.
+
+  See the Environment Variables section below for all of the possible environment variables. See the file sample-env.sh for a minimal example of a user-defined environment script.
+
 2. Run the one of the action scripts below.
 
-  TIP: Create a resuable environment script is recommnded.  But if you wish to bypass this step you can combine both of the above steps into a single command using a form which looks something like:
-    ~~~
-    SCH_ORG=<org> SCH_USER=<user>@<org> SCH_PASSWORD=<password> KUBE_NAMESPACE="streamsets" CREATE_GKE_CLUSTER=1 GKE_CLUSTER_NAME=<your_cluster_name> ./startup.sh
-    ~~~
+  > TIP: Create a resuable environment script is recommnded.  But if you wish to bypass this step you can combine both of the above steps into a single command using a form which looks something like:
+  >  ~~~
+  >  SCH_ORG=<org> SCH_USER=<user>@<org> SCH_PASSWORD=<password> KUBE_NAMESPACE="streamsets" CREATE_GKE_CLUSTER=1 GKE_CLUSTER_NAME=<your_cluster_name> ./startup.sh
+  >  ~~~
 
 ## Action Scripts
 
@@ -92,7 +93,7 @@ The us-east
    ./teardown-agent.sh 02
    ~~~
 
-  Note: The agent that is created by default with the original clusteusing the startup.sh scipt is "01"
+  > Note: The agent that is created by default with the original clusteusing the startup.sh scipt is "01"
 
 ## Enviroment Variables:
 
@@ -102,7 +103,7 @@ The us-east
 ### Required
 
 AWS_KEYPAIR_NAME - An AWS Keypair that is used to start and access the EKS Nodes on EC2.
-- *Warning* - If you wan to access one of the host via SSH, you will need to add SSH to the generated security group used by the EC2 hosts.
+> *Warning* - If you wan to access one of the host via SSH, you will need to add SSH to the generated security group used by the EC2 hosts.
 
 AWS_REGION - AWS Region to be used.
 - The script will throw an error if there is insufficient capacity in the selected Region.
@@ -135,10 +136,9 @@ EKS_NODE_IMAGEID - The AMI to be used for K8s
   - *Warning* - Some versions of the AWS provided AMI for EKS have a bug that results in insufficient file handles for SDC.  See https://github.com/awslabs/amazon-eks-ami/issues/233 for more information.
 EKS_NODE_INSTANCETYPE - AWS Instance type to be use for K8S Nodes
   - Default is "t3.small"
-EKS_NODE_GROUP_NAME - Name to K8s node group create by script be used.
-  - Default is "${KUBE_CLUSTER_NAME}-nodegrp-1"
-  - "Note" - This name is used to tag AWS Cloudformation stacks and ec2 instances.  It is not directly used in the operation or managemenent of K8s itself.
-
+EKS_NODE_GROUP_NAME - User defined name for EKS node group
+EKS_NODE_INITIALCOUNT - Number of worker nodes to create when cluster is started
+  - Default is "3" 
 
 SDC_DOCKER_IMAGE - The Name of the Docker iamge to be used.
   - Default is "streamsets/datacollector"

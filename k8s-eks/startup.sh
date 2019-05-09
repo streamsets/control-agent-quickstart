@@ -56,16 +56,19 @@ if [ "$KUBE_CREATE_CLUSTER" == "1" ]; then
          ParameterKey=KeyName,ParameterValue=${AWS_KEYPAIR_NAME} \
          ParameterKey=NodeImageId,ParameterValue=${EKS_NODE_IMAGEID} \
          ParameterKey=NodeInstanceType,,ParameterValue=${EKS_NODE_INSTANCETYPE} \
-         ParameterKey=NodeGroupName,ParameterValue=${EKS_NODE_GROUP_NAME}
+         ParameterKey=NodeGroupName,ParameterValue=${EKS_NODE_GROUP_NAME} \
+         ParameterKey=NodeAutoScalingGroupDesiredCapacity,ParameterValue=${EKS_NODE_INITIALCOUNT} \
+         ParameterKey=NodeAutoScalingGroupMaxSize,ParameterValue=$((${EKS_NODE_INITIALCOUNT}+1))
+
 
   echo ... waiting for nodes to start
   aws cloudformation wait stack-create-complete --region=${AWS_REGION} --stack-name ${EKS_NODE_GROUP_NAME}
 
-  echo ... adding nodes to cluster
-  curl -O https://amazon-eks.s3-us-west-2.amazonaws.com/cloudformation/2019-02-11/aws-auth-cm.yaml
+  echo ... adding aws-auth config map to K8s
+  curl -o _tmp_aws-auth-cm.yaml -O https://amazon-eks.s3-us-west-2.amazonaws.com/cloudformation/2019-02-11/aws-auth-cm.yaml
   EKS_NODE_INSTANCEROLE=$(aws cloudformation describe-stacks --region ${AWS_REGION} --stack-name ${EKS_NODE_GROUP_NAME} | jq -r '.Stacks[].Outputs[] | select(.OutputKey=="NodeInstanceRole").OutputValue')
-  sed -i 's,<ARN of instance role (not instance profile)>,'"${EKS_NODE_INSTANCEROLE}"',' aws-auth-cm.yaml
-  kubectl apply -f aws-auth-cm.yaml
+  sed -i 's,<ARN of instance role (not instance profile)>,'"${EKS_NODE_INSTANCEROLE}"',' _tmp_aws-auth-cm.yaml
+  kubectl apply -f _tmp_aws-auth-cm.yaml
 fi
 
 echo Configuring K8s Cluster
