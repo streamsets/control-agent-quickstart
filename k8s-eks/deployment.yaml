@@ -9,7 +9,7 @@ spec:
   template:
     metadata:
       labels:
-        app : datacollector-${SCH_DEPLOYMENT_NAME}
+        app : streamsets-datacollector
     spec:
       containers:
       - name : datacollector
