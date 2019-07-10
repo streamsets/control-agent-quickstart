@@ -46,10 +46,13 @@ echo Create Deployment ${SCH_DEPLOYMENT_NAME} with labels: ${SCH_DEPLOYMENT_LABE
 deployment_name=${SCH_DEPLOYMENT_NAME}
 
 # 0. create Secret for Docker credentials (required if private repository)
-kubectl delete secret dockerstore \
-|| { echo 'WARNING: Unable to delete Docker credentials.  If this a new provisioning agent this is expected'; }
-kubectl create secret docker-registry dockerstore --docker-username=${DOCKER_USER} --docker-password=${DOCKER_PASSWORD} --docker-email=${DOCKER_EMAIL} \
-|| { echo 'ERROR: Failed to create secret for Docker credentials in Kubernetes' ; exit 1; }
+if [ ! -z ${DOCKER_USER+x} ];
+then
+  kubectl delete secret dockerstore \
+  || { echo 'WARNING: Unable to delete Docker credentials.  If this a new provisioning agent this is expected'; }
+  kubectl create secret docker-registry dockerstore --docker-username=${DOCKER_USER} --docker-password=${DOCKER_PASSWORD} --docker-email=${DOCKER_EMAIL} \
+  || { echo 'ERROR: Failed to create secret for Docker credentials in Kubernetes' ; exit 1; }
+fi
 
 # 1. create deployment
 

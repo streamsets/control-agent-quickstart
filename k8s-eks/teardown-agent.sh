@@ -55,7 +55,9 @@ if [[ -f "agent-${SCH_AGENT_NAME}.id" && -s "agent-${SCH_AGENT_NAME}.id" ]]; the
     rm -f agent-${SCH_AGENT_NAME}.id
 
     # Delete agent
+    export SCH_AGENT_NAME
     cat control-agent.yaml | envsubst > _tmp_control-agent.yaml
+    export -n SCH_AGENT_NAME
     kubectl delete -f _tmp_control-agent.yaml
     echo "Deleted control agent"
 

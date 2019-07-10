@@ -5,7 +5,7 @@ export PATH=$HOME/bin/aws-iam-authenticator:$PATH
 #---------------------------------------
 export EKS_IAM_ROLE="arn:aws:iam::179521618147:role/eksServiceRole"
 
-us-west-2 Region parameters
+#us-west-2 Region parameters
 export AWS_REGION=us-west-2
 export AWS_KEYPAIR_NAME=MyEC2KeyPair-west-2
 export EKS_NODE_IMAGEID="ami-081099ec932b99961" #us-west-2 amazon-eks-node-1.11-v20190211
@@ -31,5 +31,12 @@ export SCH_ORG=sko
 export SCH_USER=sko@sko
 export SCH_PASSWORD=streamsets
 
+#export SDC_DOCKER_IMAGE=                   #Only Required if using customized Docker Image
 export SDC_DOCKER_TAG=latest
 #export SDC_DOCKER_TAG=3.0.0.0
+
+#Docker Hub                          #Only required if you will be using a customer Docker image stored in a private repository
+#---------------------------------------
+#export DOCKER_USER=
+#export DOCKER_PASSWORD=
+#export DOCKER_EMAIL=
