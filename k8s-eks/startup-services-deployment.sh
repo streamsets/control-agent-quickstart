@@ -1,14 +1,17 @@
-#!/bin/bash -x
+#!/bin/bash
 
 if [ $# -eq 0 ]
   then
-    echo "Usage: startup-deployment.sh <deployment name suffix>"
+    echo "Usage: startup-services-deployment.sh <deployment name suffix>"
     exit
 fi
 
 
 source login.sh
 source eks-env.sh
+
+echo Setting Namespace on Kubectl Context
+kubectl config set-context $(kubectl config current-context) --namespace=${KUBE_NAMESPACE} || { echo 'ERROR: Failed to set kubectl context' ; exit 1; }
 
 ######################
 # Initialize

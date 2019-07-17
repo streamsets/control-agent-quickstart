@@ -2,12 +2,14 @@
 
 if [ $# -eq 0 ]
   then
-    echo "Usage: startup-agent.sh <agent name suffix>"
+    echo "Usage: startup-services-agent.sh <agent name suffix>"
     exit
 fi
 
 source login.sh
 source eks-env.sh
+echo Setting Namespace on Kubectl Context
+kubectl config set-context $(kubectl config current-context) --namespace=${KUBE_NAMESPACE} || { echo 'ERROR: Failed to set kubectl context' ; exit 1; }
 
 ######################
 # Initialize
@@ -85,4 +87,4 @@ echo "DPM Agent \"${temp_agent_Id}\" successfully registered with SCH"
 #######################################
 # Create Deployment for Authoring SDC #
 #######################################
-./startup-deployment.sh 01
+./startup-services-deployment.sh 01

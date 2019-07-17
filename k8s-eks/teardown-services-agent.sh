@@ -2,12 +2,15 @@
 
 if [ $# -eq 0 ]
   then
-    echo "Usage: teardown-agent.sh <agent name suffix>"
+    echo "Usage: teardown-services-agent.sh <agent name suffix>"
     exit
 fi
 
 source login.sh
 source eks-env.sh
+
+echo Setting Namespace on Kubectl Context
+kubectl config set-context $(kubectl config current-context) --namespace=${KUBE_NAMESPACE} || { echo 'ERROR: Failed to set kubectl context' ; exit 1; }
 
 ######################
 # Initialize
@@ -64,7 +67,7 @@ if [[ -f "agent-${SCH_AGENT_NAME}.id" && -s "agent-${SCH_AGENT_NAME}.id" ]]; the
     # Delete secrets
     kubectl delete secret ${SCH_AGENT_NAME}-creds \
         || { echo 'ERROR: Failed to delete SCH credentials secret in Kubernetes'; }
-    kubectl delete secret generic ${SCH_AGENT_NAME}-compsecret \
+    kubectl delete secret ${SCH_AGENT_NAME}-compsecret \
         || { echo 'ERROR: Failed to delete agent keypair secret in Kubernetes' ; }
 
     # Delete configMap
