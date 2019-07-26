@@ -32,7 +32,7 @@ The us-east
 2. aws cli
 3. aws-iam-authenticator
   - See https://docs.aws.amazon.com/eks/latest/userguide/install-aws-iam-authenticator.html
-
+4. SCH 3.10 or higher
 
 ## Usage
 
@@ -138,7 +138,7 @@ EKS_NODE_INSTANCETYPE - AWS Instance type to be use for K8S Nodes
   - Default is "t3.small"
 EKS_NODE_GROUP_NAME - User defined name for EKS node group
 EKS_NODE_INITIALCOUNT - Number of worker nodes to create when cluster is started
-  - Default is "3" 
+  - Default is "3"
 
 SDC_DOCKER_IMAGE - The Name of the Docker iamge to be used.
   - Default is "streamsets/datacollector"
