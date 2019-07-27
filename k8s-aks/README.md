@@ -1,22 +1,21 @@
-# Sample commands
+## Prerequisites
 
-```SCH_URL=<YOUR CONTROL HUB URL>
-SCH_ORG=<YOUR ORG>
-SCH_USER=<YOUR USER>
-SCH_PASSWORD=<YOUR PASSWORD> 
-KUBE_NAMESPACE=streamsets
-CLUSTER_NAME=<YOUR AZURE CLUSTER NAME>
-AZURE_RESOURCE_GROUP=<YOUR AZURE RESORUCE GROUP>
-```
+*[See project root READ.md file for additional prerequisites]*
 
-## To create an AKS cluster and start a provisioning agent
+1. az cli
+2. SCH 3.10 or higher
+
+
+## Sample commands
+
+# To create an AKS cluster and start a provisioning agent
 SCH_ORG=${SCH_ORG} SCH_USER=${SCH_USER} SCH_PASSWORD=${SCH_PASSWORD} SCH_URL=${SCH_URL} KUBE_NAMESPACE=${KUBE_NAMESPACE} CREATE_AKS_CLUSTER=1 CLUSTER_NAME=${CLUSTER_NAME} AZURE_RESOURCE_GROUP=${AZURE_RESOURCE_GROUP} ./startup.sh
 
-## To start a provisioning agent
+# To start a provisioning agent
 SCH_ORG=${SCH_ORG} SCH_USER=${SCH_USER} SCH_PASSWORD=${SCH_PASSWORD} SCH_URL=${SCH_URL} KUBE_NAMESPACE=${KUBE_NAMESPACE} CLUSTER_NAME=${CLUSTER_NAME} AZURE__RESOURCE_GROUP=${AZURE_RESOURCE_GROUP} ./startup.sh
 
-## To teardown the AKS cluster and uninstall the agent
+# To teardown the AKS cluster and uninstall the agent
 SCH_ORG=${SCH_ORG} SCH_USER=${SCH_USER} SCH_PASSWORD=${SCH_PASSWORD} SCH_URL=${SCH_URL} KUBE_NAMESPACE=${KUBE_NAMESPACE} DELETE_AKS_CLUSTER=1 CLUSTER_NAME=${CLUSTER_NAME} AZURE_RESOURCE_GROUP=${AZURE_RESOURCE_GROUP} ./teardown.sh
 
-## To uninstall the agent
+# To uninstall the agent
 SCH_ORG=${SCH_ORG} SCH_USER=${SCH_USER} SCH_PASSWORD=${SCH_PASSWORD} SCH_URL=${SCH_URL} KUBE_NAMESPACE=${KUBE_NAMESPACE} CLUSTER_NAME=${CLUSTER_NAME} AZURE_RESOURCE_GROUP=${AZURE_RESOURCE_GROUP} ./teardown.sh

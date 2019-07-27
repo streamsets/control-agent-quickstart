@@ -1,4 +1,4 @@
-#!/bin/sh
+#!/bin/bash
 set -x
 source login.sh
 
@@ -9,12 +9,12 @@ source login.sh
  if [ -n "${CREATE_AKS_CLUSTER}" ]; then
   # if set, this will also attempt to run the az aks command to provision a cluster
   # create a resource group
-  az group create --name "${AZURE_RESOURCE_GROUP}" --location "westus"
+  az group create --name "${AZURE_RESOURCE_GROUP}" --location "westus" || { echo 'ERROR: Unable to create resource group' ; exit 1; }
   az aks create --resource-group "${AZURE_RESOURCE_GROUP}" \
   --name "${CLUSTER_NAME}" \
   --node-count "1" \
   --enable-addons monitoring \
-  --generate-ssh-keys
+  --generate-ssh-keys || { echo 'ERROR: Unable to create AKS instance' ; exit 1; }
 fi
 az aks get-credentials --resource-group ${AZURE_RESOURCE_GROUP} --name ${CLUSTER_NAME}
 # Set the namespace
@@ -32,7 +32,7 @@ kubectl create clusterrolebinding cluster-admin-binding \
 kubectl create serviceaccount streamsets-agent --namespace=${KUBE_NAMESPACE}
 kubectl create role streamsets-agent \
     --verb=get,list,create,update,delete,patch \
-    --resource=pods,secrets,replicasets,deployments,ingresses,services,horizontalpodautoscalers \
+    --resource=pods,secrets,ingresses,services,horizontalpodautoscalers,replicasets.apps,deployments.apps,replicasets.extensions,deployments.extensions \
     --namespace=${KUBE_NAMESPACE}
 kubectl create rolebinding streamsets-agent \
     --role=streamsets-agent \
@@ -127,7 +127,7 @@ echo "DPM Agent \"${temp_agent_Id}\" successfully registered with SCH"
 
 # 1. create deployment
 deployment_name="authoring-sdc"
-DEP_ID=$(curl -s -X PUT -d "{\"name\":\"${deployment_name}\",\"description\":\"Authoring sdc\",\"labels\":[\"authoring-sdc\"],\"numInstances\":1,\"spec\":\"apiVersion: extensions/v1beta1\nkind: Deployment\nmetadata:\n  name: authoring-datacollector\n  namespace: ${KUBE_NAMESPACE}\nspec:\n  replicas: 1\n  template:\n    metadata:\n      labels:\n        app : authoring-datacollector\n    spec:\n      containers:\n      - name : datacollector\n        image: streamsets/datacollector:latest\n        ports:\n        - containerPort: 18630\n        env:\n        - name: SDC_CONF_SDC_BASE_HTTP_URL\n          value: https://${external_ip}:443\n        - name: SDC_CONF_HTTP_ENABLE_FORWARDED_REQUESTS\n          value: true\",\"agentId\":\"${agent_id}\"}" "${SCH_URL}/provisioning/rest/v1/deployments" --header "Content-Type:application/json" --header "X-Requested-By:SDC" --header "X-SS-REST-CALL:true" --header "X-SS-User-Auth-Token:${SCH_TOKEN}" | jq -r '.id')
+DEP_ID=$(curl -s -X PUT -d "{\"name\":\"${deployment_name}\",\"description\":\"Authoring sdc\",\"labels\":[\"authoring-sdc\"],\"numInstances\":1,\"spec\":\"apiVersion: apps/v1\nkind: Deployment\nmetadata:\n  name: authoring-datacollector\n  namespace: ${KUBE_NAMESPACE}\nspec:\n  replicas: 1\n  selector:\n    matchLabels:\n      app: authoring-datacollector\n  template:\n    metadata:\n      labels:\n        app : authoring-datacollector\n    spec:\n      containers:\n      - name : datacollector\n        image: streamsets/datacollector:latest\n        ports:\n        - containerPort: 18630\n        env:\n        - name: SDC_CONF_SDC_BASE_HTTP_URL\n          value: https://${external_ip}:443\n        - name: SDC_CONF_HTTP_ENABLE_FORWARDED_REQUESTS\n          value: true\",\"agentId\":\"${agent_id}\"}" "${SCH_URL}/provisioning/rest/v1/deployments" --header "Content-Type:application/json" --header "X-Requested-By:SDC" --header "X-SS-REST-CALL:true" --header "X-SS-User-Auth-Token:${SCH_TOKEN}" | jq -r '.id')
 echo "Successfully created deployment with ID \"${DEP_ID}\""
 
 # 2. Store Deployment Id in a file for use by the teardown script.
