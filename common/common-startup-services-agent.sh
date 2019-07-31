@@ -40,8 +40,14 @@ echo Setup Control Agent
 
 # 1. Get a token for Agent from SCH and store it in a secret
 echo ... Get a token for Agent from SCH and store it in a secret
-AGENT_TOKEN=$(curl -s -X PUT -d "{\"organization\": \"${SCH_ORG}\", \"componentType\" : \"provisioning-agent\", \"numberOfComponents\" : 1, \"active\" : true}" ${SCH_URL}/security/rest/v1/organization/${SCH_ORG}/components --header "Content-Type:application/json" --header "X-Requested-By:SDC" --header "X-SS-REST-CALL:true" --header "X-SS-User-Auth-Token:${SCH_TOKEN}" | jq '.[0].fullAuthToken')
-#TODO Capture "Issues" in curl response
+AGENT_TOKEN_CURL=$(curl -s -X PUT -d "{\"organization\": \"${SCH_ORG}\", \"componentType\" : \"provisioning-agent\", \"numberOfComponents\" : 1, \"active\" : true}" ${SCH_URL}/security/rest/v1/organization/${SCH_ORG}/components --header "Content-Type:application/json" --header "X-Requested-By:SDC" --header "X-SS-REST-CALL:true" --header "X-SS-User-Auth-Token:${SCH_TOKEN}")
+CURL_ISSUES=$(echo ${AGENT_TOKEN_CURL} | jq ".ISSUES")
+if [ ! -z "$CURL_ISSUES" ]; then
+  echo Error encountered creating agent token: $CURL_ISSUES
+  exit
+fi
+AGENT_TOKEN=$(echo ${AGENT_TOKEN_CURL} | jq '.[0].fullAuthToken')
+
 if [ -z "$AGENT_TOKEN" ]; then
   echo "Failed to generate control agent token."
   echo "Please verify you have Provisioning Operator permissions in SCH"
