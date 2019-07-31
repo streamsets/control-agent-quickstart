@@ -6,8 +6,6 @@ if [ $# -eq 0 ]
     exit
 fi
 
-source ${COMMON_DIR}/common-login.sh
-
 echo Setting Namespace on Kubectl Context
 kubectl config set-context $(kubectl config current-context) --namespace=${KUBE_NAMESPACE} || { echo 'ERROR: Failed to set kubectl context' ; exit 1; }
 

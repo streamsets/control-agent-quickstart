@@ -1,6 +1,4 @@
 #!/bin/bash
-
-source eks-env.sh
 source login.sh
 
 ######################

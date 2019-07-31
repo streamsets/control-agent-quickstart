@@ -1,8 +1,6 @@
 #!/bin/bash
-source eks-env.sh
 source login.sh
 echo KUBE_NAMESPACE ${KUBE_NAMESPACE}
-exit
 
 ######################
 # Create EKS Cluster #

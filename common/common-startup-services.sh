@@ -1,5 +1,6 @@
 #!/bin/bash
-source ${COMMON_DIR}/common-login.sh
+
+echo common-startup-services.sh KUBE_NAMESPACE ${KUBE_NAMESPACE}
 
 echo Setting Namespace on Kubectl Context
 kubectl config set-context $(kubectl config current-context) --namespace=${KUBE_NAMESPACE} || { echo 'ERROR: Failed to set kubectl context' ; exit 1; }

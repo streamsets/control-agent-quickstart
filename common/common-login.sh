@@ -46,7 +46,7 @@ fi
 
 
 : ${SCH_URL:=https://cloud.streamsets.com}
-SCH_TOKEN=$(curl -s -X POST -d "{\"userName\":\"${SCH_USER}\", \"password\": \"${SCH_PASSWORD}\"}" ${SCH_URL}/security/public-rest/v1/authentication/login --header "Content-Type:application/json" --header "X-Requested-By:SDC" -c - | sed -n '/SS-SSO-LOGIN/p' | perl -lane 'print $F[$#F]')
+export SCH_TOKEN=$(curl -s -X POST -d "{\"userName\":\"${SCH_USER}\", \"password\": \"${SCH_PASSWORD}\"}" ${SCH_URL}/security/public-rest/v1/authentication/login --header "Content-Type:application/json" --header "X-Requested-By:SDC" -c - | sed -n '/SS-SSO-LOGIN/p' | perl -lane 'print $F[$#F]')
 
 if [ -z "$SCH_TOKEN" ]; then
   echo "Failed to authenticate with SCH :("
@@ -55,8 +55,11 @@ if [ -z "$SCH_TOKEN" ]; then
 fi
 
 : ${SDC_DOCKER_IMAGE:=streamsets/datacollector}
+export SDC_DOCKER_IMAGE
 
 : ${SDC_DOCKER_TAG:=latest}
 #: ${SDC_DOCKERTAG:=3.0.0.0}
+export SDC_DOCKER_TAG
 
 : ${KUBE_NAMESPACE:=streamsets}
+export KUBE_NAMESPACE

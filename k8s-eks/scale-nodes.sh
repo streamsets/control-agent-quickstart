@@ -14,8 +14,6 @@ fi
 
 
 source login.sh
-echo DEBUG login.sh complete
-source eks-env.sh
 
 ######################
 # Create EKS Cluster #
