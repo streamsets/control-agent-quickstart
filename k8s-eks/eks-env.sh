@@ -3,6 +3,9 @@
 # Contain properties and checks specific to AWS EKS
 #----------------------------------------------------------------
 
+export PROVIDER_DIR=$PWD
+export COMMON_DIR=`echo $(cd ../common; pwd)`
+
 : ${EKS_VPC_TEMPLATE:="https://amazon-eks.s3-us-west-2.amazonaws.com/cloudformation/2019-02-11/amazon-eks-vpc-sample.yaml"}
 
 : ${EKS_NODE_INSTANCETYPE:="t3.small"}

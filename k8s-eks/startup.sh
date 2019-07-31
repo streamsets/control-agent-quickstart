@@ -1,6 +1,8 @@
 #!/bin/bash
-source login.sh
 source eks-env.sh
+source login.sh
+echo KUBE_NAMESPACE ${KUBE_NAMESPACE}
+exit
 
 ######################
 # Create EKS Cluster #
@@ -75,4 +77,4 @@ aws eks --region ${AWS_REGION} update-kubeconfig --name "${KUBE_CLUSTER_NAME}" |
 echo ... create namespace
 kubectl create namespace ${KUBE_NAMESPACE} || { echo 'ERROR: Failed to create namespace in Kubernetes' ; exit 1; }
 
-./startup-services.sh
+${COMMON_DIR}/common-startup-services.sh

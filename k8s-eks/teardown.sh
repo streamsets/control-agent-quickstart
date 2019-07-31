@@ -1,7 +1,7 @@
 #!/bin/bash
 
-source login.sh
 source eks-env.sh
+source login.sh
 
 ######################
 # Initialize
@@ -12,6 +12,8 @@ if [ -z ${SCH_AGENT_NAME+x} ]; then export SCH_AGENT_NAME=${KUBE_CLUSTER_NAME}-s
 if [ -z "$EKS_NODE_GROUP_NAME" ]; then EKS_NODE_GROUP_NAME=${KUBE_CLUSTER_NAME}-nodegrp-1; fi
 
 #TODO Confirm Kubtcl current Config is correct.
+
+${COMMON_DIR}/teardown-services.sh
 
 if [ "$KUBE_DELETE_CLUSTER" == "1" ]; then
   #Destroy K8s Cluster
@@ -36,7 +38,7 @@ if [ "$KUBE_DELETE_CLUSTER" == "1" ]; then
 #-----------------------------------------------------------------------------
 else
   #Clean up K8s config
-  ./teardown-services.sh
+  ${COMMON_DIR}/common-teardown-services.sh
 
 fi
 
