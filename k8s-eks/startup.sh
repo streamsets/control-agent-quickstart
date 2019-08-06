@@ -5,11 +5,6 @@ source login.sh
 # Create EKS Cluster #
 ######################
 
-: ${KUBE_CLUSTER_NAME:="streamsets-quickstart"}
-#if [ -z ${SCH_AGENT_NAME+x} ]; then export SCH_AGENT_NAME=${KUBE_CLUSTER_NAME}-schagent; fi
-#if [ -z ${SCH_DEPLOYMENT_NAME+x} ]; then export SCH_DEPLOYMENT_NAME=${SCH_AGENT_NAME}-deployment-01; fi
-#if [ -z ${SCH_DEPLOYMENT_LABELS+x} ]; then export SCH_DEPLOYMENT_LABELS=all,${KUBE_CLUSTER_NAME},${SCH_AGENT_NAME},${SCH_DEPLOYMENT_NAME},${SDC_DOCKERTAG}; fi
-
 EKS_NODE_GROUP_NAME=${KUBE_CLUSTER_NAME}-nodegrp-1
 if [ "$KUBE_CREATE_CLUSTER" == "1" ]; then
   # if set, this will also attempt to provision an EKS cluster

@@ -1,4 +1,6 @@
 #!/bin/bash
+echo Running common-teardown-services.sh on cluster ${KUBE_CLUSTER_NAME}
+
 echo Setting Namespace on Kubectl Context
 kubectl config set-context $(kubectl config current-context) --namespace=${KUBE_NAMESPACE} || { echo 'ERROR: Failed to set kubectl context' ; exit 1; }
 
@@ -6,8 +8,7 @@ kubectl config set-context $(kubectl config current-context) --namespace=${KUBE_
 # Initialize
 ######################
 
-: ${KUBE_CLUSTER_NAME:="streamsets-quickstart"}
-if [ -z ${SCH_AGENT_NAME+x} ]; then export SCH_AGENT_NAME=${KUBE_CLUSTER_NAME}-schagent01; fi
+echo Running `basename "$0"` on cluster ${KUBE_CLUSTER_NAME}
 
 #TODO Change to delete all agents on cluster
 for i in agent-${KUBE_CLUSTER_NAME}*.id; do
@@ -26,22 +27,21 @@ done
 #aws eks --region ${AWS_REGION} update-kubeconfig --name "${KUBE_CLUSTER_NAME}"
 
 # Configure & Delete traefik service
-kubectl delete -f traefik-dep.yaml
-echo "Deleted traefik ingresskub controller and service"
+echo "Deleting traefik ingress controller and service"
+kubectl delete -f ${COMMON_DIR}/traefik-dep.yaml
 
 # Delete traefik configuration to handle https
+echo "Deleting configmap traefik-conf"
 kubectl delete configmap traefik-conf
-echo "Deleted configmap traefik-conf"
 
-echo ... Delete Authoring SDC Service
-kubectl delete -f authoring-sdc-svc.yaml
-echo "... Deleted Authoring sdc service"
+echo ... Deleting Authoring SDC Service
+kubectl delete -f ${COMMON_DIR}/authoring-sdc-svc.yaml
 
 
 # Delete the certificate and key file
+echo "... Deleting TLS key"
 kubectl delete secret traefik-cert
 rm -f tls.crt tls.key
-echo "... Deleted TLS key"
 
 #TODO Not necessary if cluster being destroyed
 kubectl delete rolebinding streamsets-agent --namespace=${KUBE_NAMESPACE}
@@ -54,3 +54,5 @@ kubectl delete clusterrolebinding cluster-admin-binding
 
 #kubectl delete namespace ${KUBE_NAMESPACE}
 #echo "Deleted Namespace ${KUBE_NAMESPACE}"
+
+echo Exiting common-teardown-services.sh on cluster ${KUBE_CLUSTER_NAME}

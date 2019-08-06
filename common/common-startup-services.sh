@@ -1,7 +1,4 @@
 #!/bin/bash
-
-echo common-startup-services.sh KUBE_NAMESPACE ${KUBE_NAMESPACE}
-
 echo Setting Namespace on Kubectl Context
 kubectl config set-context $(kubectl config current-context) --namespace=${KUBE_NAMESPACE} || { echo 'ERROR: Failed to set kubectl context' ; exit 1; }
 
@@ -44,6 +41,7 @@ kubectl create clusterrolebinding traefik-ingress-controller \
 ####################################
 # Setup Traefik Ingress Controller #
 ####################################
+echo Running common-startup-services.sh on cluster ${KUBE_CLUSTER_NAME}
 
 echo Setup Traefik Ingress Controller
 echo ... generate self signed certificate
@@ -63,11 +61,11 @@ kubectl create secret generic traefik-cert \
 
 # 2. Create traefik configuration to handle https
 echo ... create configmap
-kubectl create configmap traefik-conf --from-file=traefik.toml || { echo 'ERROR: Failed to create configmap in Kubernetes' ; exit 1; }
+kubectl create configmap traefik-conf --from-file=${COMMON_DIR}/traefik.toml || { echo 'ERROR: Failed to create configmap in Kubernetes' ; exit 1; }
 
 # 3. Configure & create traefik service
 echo ... create traefik service
-kubectl create -f traefik-dep.yaml --namespace=${KUBE_NAMESPACE} || { echo 'ERROR: Failed to traefik service in Kubernetes' ; exit 1; }
+kubectl create -f ${COMMON_DIR}/traefik-dep.yaml --namespace=${KUBE_NAMESPACE} || { echo 'ERROR: Failed to traefik service in Kubernetes' ; exit 1; }
 
 # 4. Wait for an external endpoint to be assigned
 echo ... wait for traefik external ip address
@@ -85,10 +83,12 @@ echo "External Endpoint to Access Authoring SDC : ${external_ip}\n"
 
 echo Create a service and ingress for Authoring SDC
 # 1. Create Authoring SDC Service and Ingress
-kubectl create -f authoring-sdc-svc.yaml  || { echo 'ERROR: Failed to create service and ingress for SDC instance' ; exit 1; }
+kubectl create -f ${COMMON_DIR}/authoring-sdc-svc.yaml  || { echo 'ERROR: Failed to create service and ingress for SDC instance' ; exit 1; }
 
 
 #######################
 # Setup Control Agent #
 #######################
 ${COMMON_DIR}/common-startup-services-agent.sh 01
+
+echo Exiting common-startup-services.sh on cluster ${KUBE_CLUSTER_NAME}

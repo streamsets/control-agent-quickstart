@@ -1,4 +1,5 @@
 #!/bin/bash
+echo Running common-teardown-services-agent.sh on cluster ${KUBE_CLUSTER_NAME}
 
 if [ $# -eq 0 ]
   then
@@ -13,12 +14,6 @@ kubectl config set-context $(kubectl config current-context) --namespace=${KUBE_
 # Initialize
 ######################
 
-: ${KUBE_CLUSTER_NAME:="streamsets-quickstart"}
-# DEVELOPER WARNNG - This script may be called repeatedly by teardown.sh. to
-# shutdown multiple agents.  Do NOT export SCH_AGENT_NAME as it will cause all
-# interations to get the value set during the first call.
-if [ -z ${SCH_AGENT_NAME+x} ]; then SCH_AGENT_NAME=${KUBE_CLUSTER_NAME}-schagent${1}; fi
-
 # 2. Delete and Unregister Control Agent if one is active
 if [[ -f "agent-${SCH_AGENT_NAME}.id" && -s "agent-${SCH_AGENT_NAME}.id" ]]; then
     agent_id="`cat agent-${SCH_AGENT_NAME}.id`"
@@ -26,6 +21,7 @@ if [[ -f "agent-${SCH_AGENT_NAME}.id" && -s "agent-${SCH_AGENT_NAME}.id" ]]; the
     echo K8S Namespace: ${KUBE_NAMESPACE}
 
     # 1. Stop and Delete deployment if one is active
+    echo "Stop and Delete deployment if one is active"
     #TODO Should dynically discover deployment names via REST API based on agent name
     for i in deployment-${SCH_AGENT_NAME}*.id; do
             [ -f "$i" ] || break # break if zero matches
@@ -48,26 +44,29 @@ if [[ -f "agent-${SCH_AGENT_NAME}.id" && -s "agent-${SCH_AGENT_NAME}.id" ]]; the
 
     done
 
+    # Delete agent
+    echo "Deactivate and delete agent"
+    echo "... Deactivate and delete in SCH"
     agent_id="`cat agent-${SCH_AGENT_NAME}.id`"
     curl -X POST -d "[ \"${agent_id}\" ]" ${SCH_URL}/security/rest/v1/organization/${SCH_ORG}/components/deactivate --header "Content-Type:application/json" --header "X-Requested-By:SDC" --header "X-SS-REST-CALL:true" --header "X-SS-User-Auth-Token:${SCH_TOKEN}"
     curl -X POST -d "[ \"${agent_id}\" ]" ${SCH_URL}/security/rest/v1/organization/${SCH_ORG}/components/delete --header "Content-Type:application/json" --header "X-Requested-By:SDC" --header "X-SS-REST-CALL:true" --header "X-SS-User-Auth-Token:${SCH_TOKEN}"
     curl -s -X DELETE "${SCH_URL}/provisioning/rest/v1/dpmAgent/${agent_id}" --header "Content-Type:application/json" --header "X-Requested-By:SDC" --header "X-SS-REST-CALL:true" --header "X-SS-User-Auth-Token:${SCH_TOKEN}"
     rm -f agent-${SCH_AGENT_NAME}.id
 
-    # Delete agent
-    export SCH_AGENT_NAME
-    cat control-agent.yaml | envsubst > ${PROVIDER_DIR}/_tmp_control-agent.yaml
-    export -n SCH_AGENT_NAME
+    echo "... Delete K8s Pod"
+    cat ${COMMON_DIR}/control-agent.yaml | envsubst > ${PROVIDER_DIR}/_tmp_control-agent.yaml
     kubectl delete -f ${PROVIDER_DIR}/_tmp_control-agent.yaml
     echo "Deleted control agent"
 
     # Delete secrets
+    echo "... Delete agent secrets"
     kubectl delete secret ${SCH_AGENT_NAME}-creds \
         || { echo 'ERROR: Failed to delete SCH credentials secret in Kubernetes'; }
     kubectl delete secret ${SCH_AGENT_NAME}-compsecret \
         || { echo 'ERROR: Failed to delete agent keypair secret in Kubernetes' ; }
 
     # Delete configMap
+    echo "... Delete agent configmap"
     kubectl delete configmap ${SCH_AGENT_NAME}-config \
         || { echo 'ERROR: Failed to create configmap in Kubernetes' ; exit 1; }
 
@@ -76,3 +75,5 @@ if [[ -f "agent-${SCH_AGENT_NAME}.id" && -s "agent-${SCH_AGENT_NAME}.id" ]]; the
 else
     echo "File not found: agent-${SCH_AGENT_NAME}.id"
 fi
+
+echo Exiting common-teardown-services-agent.sh on cluster ${KUBE_CLUSTER_NAME}

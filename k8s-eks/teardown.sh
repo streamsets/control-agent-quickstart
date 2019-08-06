@@ -5,8 +5,6 @@ source login.sh
 # Initialize
 ######################
 
-: ${KUBE_CLUSTER_NAME:="streamsets-quickstart"}
-if [ -z ${SCH_AGENT_NAME+x} ]; then export SCH_AGENT_NAME=${KUBE_CLUSTER_NAME}-schagent01; fi
 if [ -z "$EKS_NODE_GROUP_NAME" ]; then EKS_NODE_GROUP_NAME=${KUBE_CLUSTER_NAME}-nodegrp-1; fi
 
 #TODO Confirm Kubtcl current Config is correct.
@@ -33,11 +31,6 @@ if [ "$KUBE_DELETE_CLUSTER" == "1" ]; then
   aws cloudformation delete-stack --region=${AWS_REGION} --stack-name ${KUBE_CLUSTER_NAME}-vpc
   echo ... waiting for vpc stack to delete
   aws cloudformation wait stack-delete-complete --region=${AWS_REGION} --stack-name ${KUBE_CLUSTER_NAME}-vpc
-#-----------------------------------------------------------------------------
-else
-  #Clean up K8s config
-  ${COMMON_DIR}/common-teardown-services.sh
-
 fi
 
 #Clean up kubectl config

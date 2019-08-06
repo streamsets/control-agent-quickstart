@@ -1,20 +1,22 @@
 #!/bin/bash
+echo Running common-startup-services-agent.sh on cluster ${KUBE_CLUSTER_NAME}
+
+echo K8S Cluster Name: ${KUBE_CLUSTER_NAME}
+echo K8S Namespace: ${KUBE_NAMESPACE}
+echo Agent name: ${SCH_AGENT_NAME}
 
 if [ $# -eq 0 ]
   then
     echo "Usage: startup-services-agent.sh <agent name suffix>"
     exit
-fi
 
-echo Setting Namespace on Kubectl Context
+fi
+echo Setting Namespace to ${KUBE_NAMESPACE} on Kubectl Context
 kubectl config set-context $(kubectl config current-context) --namespace=${KUBE_NAMESPACE} || { echo 'ERROR: Failed to set kubectl context' ; exit 1; }
 
 ######################
 # Initialize
 ######################
-
-: ${KUBE_CLUSTER_NAME:="streamsets-quickstart"}
-if [ -z ${SCH_AGENT_NAME+x} ]; then export SCH_AGENT_NAME=${KUBE_CLUSTER_NAME}-schagent${1}; fi
 
 echo ... wait for traefik external ip address
 # 4. Wait for an external endpoint to be assigned
@@ -30,9 +32,6 @@ while [ 1 ]; do
 done
 echo "External Endpoint to Access Authoring SDC : ${external_ip}\n"
 
-echo K8S Namespace: ${KUBE_NAMESPACE}
-echo Agent name: ${SCH_AGENT_NAME}
-
 #######################
 # Setup Control Agent #
 #######################
@@ -43,16 +42,18 @@ echo ... Get a token for Agent from SCH and store it in a secret
 AGENT_TOKEN_CURL=$(curl -s -X PUT -d "{\"organization\": \"${SCH_ORG}\", \"componentType\" : \"provisioning-agent\", \"numberOfComponents\" : 1, \"active\" : true}" ${SCH_URL}/security/rest/v1/organization/${SCH_ORG}/components --header "Content-Type:application/json" --header "X-Requested-By:SDC" --header "X-SS-REST-CALL:true" --header "X-SS-User-Auth-Token:${SCH_TOKEN}")
 CURL_ISSUES=$(echo ${AGENT_TOKEN_CURL} | jq ".ISSUES")
 if [ ! -z "$CURL_ISSUES" ]; then
-  echo Error encountered creating agent token: $CURL_ISSUES
+  echo "ERROR: Problem encountered while requesting agent token: $CURL_ISSUES"
   exit
 fi
 AGENT_TOKEN=$(echo ${AGENT_TOKEN_CURL} | jq '.[0].fullAuthToken')
 
 if [ -z "$AGENT_TOKEN" ]; then
-  echo "Failed to generate control agent token."
-  echo "Please verify you have Provisioning Operator permissions in SCH"
+  echo "ERROR: Failed to retrieve control agent token."
   exit 1
+else
+  echo "   Agent token successfully retrieved"
 fi
+echo ... Create secret from agent token
 kubectl create secret generic ${SCH_AGENT_NAME}-creds \
     --from-literal=dpm_agent_token_string=${AGENT_TOKEN} \
     || { echo 'ERROR: Failed to create SCH credentials secret in Kubernetes' ; exit 1; }
@@ -74,7 +75,7 @@ kubectl create configmap ${SCH_AGENT_NAME}-config \
 
 # 4. Launch Agent
 echo ... Launch Agent
-cat control-agent.yaml | envsubst > ${PROVIDER_DIR}/_tmp_control-agent.yaml
+cat ${COMMON_DIR}/control-agent.yaml | envsubst > ${PROVIDER_DIR}/_tmp_control-agent.yaml
 #exit
 #cat control-agent.yaml | envsubst | sed -E ':a;N;$!ba;s/\r{0,1}\n/\\n/g' > ${PROVIDER_DIR}/_tmp_control-agent.yaml
 kubectl create -f ${PROVIDER_DIR}/_tmp_control-agent.yaml || { echo 'ERROR: Failed to launch Streamsets Control Agent in Kubernetes' ; exit 1; }
@@ -84,6 +85,7 @@ echo ... wait for agent to be registered with SCH
 temp_agent_Id=""
 while [ -z $temp_agent_Id ]; do
   sleep 10
+  curl -L "${SCH_URL}/provisioning/rest/v1/dpmAgents?organization=${SCH_ORG}" --header "Content-Type:application/json" --header "X-Requested-By:SDC" --header "X-SS-REST-CALL:true" --header "X-SS-User-Auth-Token:${SCH_TOKEN}" | jq -r "map(select(any(.id; contains(\"${agent_id}\")))|.id)[]"
   temp_agent_Id=$(curl -L "${SCH_URL}/provisioning/rest/v1/dpmAgents?organization=${SCH_ORG}" --header "Content-Type:application/json" --header "X-Requested-By:SDC" --header "X-SS-REST-CALL:true" --header "X-SS-User-Auth-Token:${SCH_TOKEN}" | jq -r "map(select(any(.id; contains(\"${agent_id}\")))|.id)[]")
 done
 echo "DPM Agent \"${temp_agent_Id}\" successfully registered with SCH"
@@ -92,3 +94,5 @@ echo "DPM Agent \"${temp_agent_Id}\" successfully registered with SCH"
 # Create Deployment for Authoring SDC #
 #######################################
 ${COMMON_DIR}/common-startup-services-deployment.sh 01
+
+echo Exiting common-startup-services-agent.sh on cluster ${KUBE_CLUSTER_NAME}

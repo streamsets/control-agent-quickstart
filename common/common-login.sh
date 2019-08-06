@@ -1,4 +1,11 @@
 #!/bin/bash
+echo Running common-login.sh
+
+echo K8S Cluster Name: ${KUBE_CLUSTER_NAME}
+echo K8S Namespace: ${KUBE_NAMESPACE}
+echo Agent name: ${SCH_AGENT_NAME}
+
+
 #----------------------------------------------------------
 # Contain variable and checks that are common to all SCH/K8S environemnt setups
 #----------------------------------------------------------
@@ -63,3 +70,15 @@ export SDC_DOCKER_TAG
 
 : ${KUBE_NAMESPACE:=streamsets}
 export KUBE_NAMESPACE
+
+: ${KUBE_CLUSTER_NAME:="streamsets-quickstart"}
+export KUBE_CLUSTER_NAME
+
+if [ -z ${SCH_AGENT_NAME+x} ]; then export SCH_AGENT_NAME=${KUBE_CLUSTER_NAME}-schagent01; fi
+export SCH_AGENT_NAME
+
+echo K8S Cluster Name: ${KUBE_CLUSTER_NAME}
+echo K8S Namespace: ${KUBE_NAMESPACE}
+echo Agent name: ${SCH_AGENT_NAME}
+
+echo Exiting common-login.sh
