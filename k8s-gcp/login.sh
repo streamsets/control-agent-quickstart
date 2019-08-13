@@ -1,4 +1,4 @@
-#!/bin/sh
+#!/bin/bash
 
 function show_usage {
   echo "\nVariables can be exported or set on the command line as shown below."
