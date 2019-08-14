@@ -74,6 +74,9 @@ export KUBE_NAMESPACE
 : ${KUBE_CLUSTER_NAME:="streamsets-quickstart"}
 export KUBE_CLUSTER_NAME
 
+: ${KUBE_NODE_INITIALCOUNT:=3}
+export KUBE_NODE_INITIALCOUNT
+
 if [ -z ${SCH_AGENT_NAME+x} ]; then export SCH_AGENT_NAME=${KUBE_CLUSTER_NAME}-schagent01; fi
 export SCH_AGENT_NAME
 
