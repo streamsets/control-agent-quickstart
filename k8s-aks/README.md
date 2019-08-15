@@ -5,17 +5,20 @@
 1. az cli
 2. SCH 3.10 or higher
 
+See the root directory README for additional prerequisites.*
 
-## Sample commands
+## Usage
 
-# To create an AKS cluster and start a provisioning agent
-SCH_ORG=${SCH_ORG} SCH_USER=${SCH_USER} SCH_PASSWORD=${SCH_PASSWORD} SCH_URL=${SCH_URL} KUBE_NAMESPACE=${KUBE_NAMESPACE} CREATE_AKS_CLUSTER=1 CLUSTER_NAME=${CLUSTER_NAME} AZURE_RESOURCE_GROUP=${AZURE_RESOURCE_GROUP} ./startup.sh
+*See the root folder README*
 
-# To start a provisioning agent
-SCH_ORG=${SCH_ORG} SCH_USER=${SCH_USER} SCH_PASSWORD=${SCH_PASSWORD} SCH_URL=${SCH_URL} KUBE_NAMESPACE=${KUBE_NAMESPACE} CLUSTER_NAME=${CLUSTER_NAME} AZURE__RESOURCE_GROUP=${AZURE_RESOURCE_GROUP} ./startup.sh
+## Enviroment Variables:
 
-# To teardown the AKS cluster and uninstall the agent
-SCH_ORG=${SCH_ORG} SCH_USER=${SCH_USER} SCH_PASSWORD=${SCH_PASSWORD} SCH_URL=${SCH_URL} KUBE_NAMESPACE=${KUBE_NAMESPACE} DELETE_AKS_CLUSTER=1 CLUSTER_NAME=${CLUSTER_NAME} AZURE_RESOURCE_GROUP=${AZURE_RESOURCE_GROUP} ./teardown.sh
+*See the root folder README for information on all common environment variables.*
 
-# To uninstall the agent
-SCH_ORG=${SCH_ORG} SCH_USER=${SCH_USER} SCH_PASSWORD=${SCH_PASSWORD} SCH_URL=${SCH_URL} KUBE_NAMESPACE=${KUBE_NAMESPACE} CLUSTER_NAME=${CLUSTER_NAME} AZURE_RESOURCE_GROUP=${AZURE_RESOURCE_GROUP} ./teardown.sh
+
+### Required
+
+### Optional
+
+KUBE_PROVIDER_GEO - Default "westus"
+KUBE_PROVIDER_MACHINETYPE - Default "KUBE_PROVIDER_MACHINETYPE".

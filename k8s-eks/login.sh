@@ -12,9 +12,6 @@ export EKS_VPC_TEMPLATE
 : ${EKS_NODE_INSTANCETYPE:="t3.small"}
 export EKS_NODE_INSTANCETYPE
 
-: ${EKS_NODE_INITIALCOUNT:="3"}
-export EKS_NODE_INITIALCOUNT
-
 : ${EKS_NODE_GRP_TEMPLATE:="https://amazon-eks.s3-us-west-2.amazonaws.com/cloudformation/2019-02-11/amazon-eks-nodegroup.yaml"}
 export EKS_NODE_GRP_TEMPLATE
 
@@ -31,6 +28,15 @@ if [ -z "$(which aws-iam-authenticator)" ]; then
   echo "https://docs.aws.amazon.com/eks/latest/userguide/install-aws-iam-authenticator.html"
   exit 1
 fi
+
+if [ -z ${KUBE_PROVIDER_GEO+x} ]; then export KUBE_PROVIDER_GEO=us-west-2; fi
+if [ -z ${KUBE_PROVIDER_MACHINETYPE+x} ]; then export KUBE_PROVIDER_MACHINETYPE="t3.small"; fi
+
+
+#Backward compatiblity with original scripts
+if [ ! -z ${EKS_NODE_INITIALCOUNT+x} ]; then export KUBE_NODE_INITIALCOUNT=${EKS_NODE_INITIALCOUNT}; fi
+if [ ! -z ${AWS_REGION+x} ]; then export KUBE_PROVIDER_GEO=${AWS_REGION}; fi
+if [ ! -z ${EKS_NODE_INSTANCETYPE+x} ]; then export KUBE_PROVIDER_MACHINETYPE=${EKS_NODE_INSTANCETYPE}; fi
 
 source ${COMMON_DIR}/common-login.sh
 echo login.sh KUBE_NAMESPACE ${KUBE_NAMESPACE}

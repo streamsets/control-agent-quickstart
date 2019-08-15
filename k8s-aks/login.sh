@@ -11,6 +11,16 @@ if [ -z "$(which az)" ]; then
   exit 1
 fi
 
+if [ -z ${KUBE_PROVIDER_GEO+x} ]; then export KUBE_PROVIDER_GEO=westus; fi
+if [ -z ${KUBE_PROVIDER_MACHINETYPE+x} ]; then export KUBE_PROVIDER_MACHINETYPE=Standard_DS2_v2; fi
+
+
+#Backward compatiblity with previous scripts
+if [ ! -z ${AKS_CLUSTER_NAME+x} ]; then export KUBE_CLUSTER_NAME=${AKS_CLUSTER_NAME}; fi
+if [ ! -z ${CREATE_AKS_CLUSTER+x} ]; then export KUBE_CREATE_CLUSTER=${CREATE_AKS_CLUSTER}; fi
+if [ ! -z ${DELETE_AKS_CLUSTER+x} ]; then export KUBE_DELETE_CLUSTER=${DELETE_AKS_CLUSTER}; fi
+
+
 source ${COMMON_DIR}/common-login.sh
 echo login.sh KUBE_NAMESPACE ${KUBE_NAMESPACE}
 

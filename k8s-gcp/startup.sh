@@ -8,8 +8,8 @@ source login.sh
 if [ -n "$KUBE_CREATE_CLUSTER" ]; then
   # if set, this will also attempt to run the gcloud command to provision a cluster
   gcloud container clusters create "${KUBE_CLUSTER_NAME}" \
-    --zone "us-central1-a" \
-    --machine-type "n1-standard-1" \
+    --zone "${KUBE_PROVIDER_GEO}" \
+    --machine-type "${GKE_MACHINE_TYPE}" \
     --image-type "COS" \
     --disk-size "100" \
     --num-nodes "$KUBE_NODE_INITIALCOUNT" \
@@ -18,7 +18,7 @@ if [ -n "$KUBE_CREATE_CLUSTER" ]; then
     --enable-cloud-monitoring
 
   gcloud container clusters get-credentials "${KUBE_CLUSTER_NAME}" \
-    --zone "us-central1-a"
+    --zone "${KUBE_PROVIDER_GEO}"
 
 fi
 

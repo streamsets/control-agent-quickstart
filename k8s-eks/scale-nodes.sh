@@ -1,5 +1,7 @@
 #!/bin/bash
 
+AWS_REGION=${KUBE_PROVIDER_GEO}
+
 if [ $# -eq 0 ]
   then
     echo "Usage: scale-nodes.sh <number of desired nodes>"

@@ -4,12 +4,13 @@ source login.sh
 ######################
 # Initialize
 ######################
+AWS_REGION=${KUBE_PROVIDER_GEO}
 
 if [ -z "$EKS_NODE_GROUP_NAME" ]; then EKS_NODE_GROUP_NAME=${KUBE_CLUSTER_NAME}-nodegrp-1; fi
 
 #TODO Confirm Kubtcl current Config is correct.
 
-${COMMON_DIR}/teardown-services.sh
+${COMMON_DIR}/common-teardown-services.sh
 
 if [ "$KUBE_DELETE_CLUSTER" == "1" ]; then
   #Destroy K8s Cluster
@@ -36,4 +37,4 @@ fi
 #Clean up kubectl config
 kubectl config unset users.`kubectl config view -o jsonpath='{.users[*].name}' | tr " " "\n" | grep ${KUBE_CLUSTER_NAME}`
 kubectl config unset clusters.`kubectl config get-clusters | grep ${KUBE_CLUSTER_NAME}`
-kubectl config unset context.`kubectl config get-contexts -o name | grep ${KUBE_CLUSTER_NAME}`
+kubectl config unset contexts.`kubectl config get-contexts -o name | grep ${KUBE_CLUSTER_NAME}`

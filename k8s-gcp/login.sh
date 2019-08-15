@@ -11,15 +11,14 @@ if [ -z "$(which gcloud)" ]; then
   exit 1
 fi
 
-#Backward compatiblity with original scripts
+if [ -z ${KUBE_PROVIDER_GEO+x} ]; then export KUBE_PROVIDER_GEO="us-central1-a"; fi
+if [ -z ${KUBE_PROVIDER_MACHINETYPE+x} ]; then export KUBE_PROVIDER_MACHINETYPE="t3.n1-standard-1"; fi
+
+#Backward compatiblity with previous scripts
 if [ ! -z ${GKE_CLUSTER_NAME+x} ]; then export KUBE_CLUSTER_NAME=${GKE_CLUSTER_NAME}; fi
 if [ ! -z ${CREATE_GKE_CLUSTER+x} ]; then export KUBE_CREATE_CLUSTER=${CREATE_GKE_CLUSTER}; fi
 if [ ! -z ${DELETE_GKE_CLUSTER+x} ]; then export KUBE_DELETE_CLUSTER=${DELETE_GKE_CLUSTER}; fi
 
 source ${COMMON_DIR}/common-login.sh
-echo login.sh KUBE_NAMESPACE ${KUBE_NAMESPACE}
-echo KUBE_CLUSTER_NAME ${KUBE_CLUSTER_NAME}
-echo KUBE_CREATE_CLUSTER ${KUBE_CREATE_CLUSTER}
-
 
 echo Exiting login.sh

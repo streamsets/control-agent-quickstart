@@ -5,6 +5,8 @@ source login.sh
 # Create EKS Cluster #
 ######################
 
+AWS_REGION=${KUBE_PROVIDER_GEO}
+
 EKS_NODE_GROUP_NAME=${KUBE_CLUSTER_NAME}-nodegrp-1
 if [ "$KUBE_CREATE_CLUSTER" == "1" ]; then
   # if set, this will also attempt to provision an EKS cluster
@@ -49,8 +51,8 @@ if [ "$KUBE_CREATE_CLUSTER" == "1" ]; then
          ParameterKey=NodeImageId,ParameterValue=${EKS_NODE_IMAGEID} \
          ParameterKey=NodeInstanceType,,ParameterValue=${EKS_NODE_INSTANCETYPE} \
          ParameterKey=NodeGroupName,ParameterValue=${EKS_NODE_GROUP_NAME} \
-         ParameterKey=NodeAutoScalingGroupDesiredCapacity,ParameterValue=${EKS_NODE_INITIALCOUNT} \
-         ParameterKey=NodeAutoScalingGroupMaxSize,ParameterValue=$((${EKS_NODE_INITIALCOUNT}+1))
+         ParameterKey=NodeAutoScalingGroupDesiredCapacity,ParameterValue=${KUBE_NODE_INITIALCOUNT} \
+         ParameterKey=NodeAutoScalingGroupMaxSize,ParameterValue=$((${KUBE_NODE_INITIALCOUNT}+1))
 
 
   echo ... waiting for nodes to start
@@ -65,7 +67,7 @@ fi
 
 echo Configuring K8s Cluster
 echo ... configuring kubectl
-aws eks --region ${AWS_REGION} update-kubeconfig --name "${KUBE_CLUSTER_NAME}" || { echo 'ERROR: Failed to configure kubectl' ; exit 1; }
+aws eks --region ${AWS_REGION} update-kubeconfig --name "${KUBE_CLUSTER_NAME}" --alias "${KUBE_CLUSTER_NAME}"     || { echo 'ERROR: Failed to configure kubectl' ; exit 1; }
 echo ... create namespace
 kubectl create namespace ${KUBE_NAMESPACE} || { echo 'ERROR: Failed to create namespace in Kubernetes' ; exit 1; }
 

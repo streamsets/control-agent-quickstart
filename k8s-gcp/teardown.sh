@@ -6,7 +6,7 @@ source login.sh
 ${COMMON_DIR}/common-teardown-services.sh
 
 if [ -n "$KUBE_DELETE_CLUSTER" ]; then
-  gcloud container clusters delete ${KUBE_CLUSTER_NAME} --zone "us-central1-a"
+  gcloud container clusters delete ${KUBE_CLUSTER_NAME} --zone "${KUBE_PROVIDER_GEO}"
 fi
 
 #Clean up kubectl config
