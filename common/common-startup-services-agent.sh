@@ -14,24 +14,6 @@ fi
 echo Setting Namespace to ${KUBE_NAMESPACE} on Kubectl Context
 kubectl config set-context $(kubectl config current-context) --namespace=${KUBE_NAMESPACE} || { echo 'ERROR: Failed to set kubectl context' ; exit 1; }
 
-######################
-# Initialize
-######################
-
-echo ... wait for traefik external ip address
-# 4. Wait for an external endpoint to be assigned
-external_ip=""
-#while [ -z $external_ip ]; do
-while [ 1 ]; do
-    #external_ip=$(kubectl get svc traefik-ingress-service -o json | jq -r 'select(.status.loadBalancer.ingress != null) | .status.loadBalancer.ingress[].ip')
-    external_ip=$(kubectl get svc traefik-ingress-service -o json | jq -r 'select(.status.loadBalancer.ingress != null) | .status.loadBalancer.ingress[].hostname')
-    if ! [ -z $external_ip ]; then
-      break
-    fi
-    sleep 10
-done
-echo "External Endpoint to Access Authoring SDC : ${external_ip}\n"
-
 #######################
 # Setup Control Agent #
 #######################
@@ -91,7 +73,7 @@ done
 echo "DPM Agent \"${temp_agent_Id}\" successfully registered with SCH"
 
 #######################################
-# Create Deployment for Authoring SDC #
+# Create Deployment                   #
 #######################################
 ${COMMON_DIR}/common-startup-services-deployment.sh 01
 

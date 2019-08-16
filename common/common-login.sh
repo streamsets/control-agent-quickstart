@@ -80,6 +80,10 @@ export KUBE_NODE_INITIALCOUNT
 if [ -z ${SCH_AGENT_NAME+x} ]; then export SCH_AGENT_NAME=${KUBE_CLUSTER_NAME}-schagent01; fi
 export SCH_AGENT_NAME
 
+: ${SCH_DEPLOYMENT_TYPE:=AUTHORING}
+SCH_DEPLOYMENT_TYPE=${SCH_DEPLOYMENT_TYPE^^}  #Convert to Uppercase
+export SCH_DEPLOYMENT_TYPE
+
 echo K8S Cluster Name: ${KUBE_CLUSTER_NAME}
 echo K8S Namespace: ${KUBE_NAMESPACE}
 echo Agent name: ${SCH_AGENT_NAME}

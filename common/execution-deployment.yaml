@@ -1,0 +1,28 @@
+
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: ${SCH_DEPLOYMENT_NAME}
+  namespace: ${KUBE_NAMESPACE}
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: streamsets-datacollector
+  template:
+    metadata:
+      labels:
+        app : streamsets-datacollector
+    spec:
+      containers:
+      - name : datacollector
+        image: ${SDC_DOCKER_IMAGE}:${SDC_DOCKER_TAG}
+        ports:
+        - containerPort: 18630
+        env:
+        - name: HOST
+          valueFrom:
+            fieldRef:
+              fieldPath: status.podIP
+      imagePullSecrets:
+      - name: dockerstore
