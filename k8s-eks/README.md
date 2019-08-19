@@ -16,13 +16,6 @@ To implement option 2, you may copy the AWS-supplied template to a local file an
 Refer to the details of the EKS_VPC_TEMPLATE environment variable below for the location of the default template and how to configure script to use a local file.
 
 
-
-The The us-east-1 is of course popular region, but it also can have chonic availa popular region
- The second option is supported by
-The us-east
-
-
-
 ## Prerequisites
 
 1. EKS Service IAM Role
