@@ -108,7 +108,7 @@ SCH_AGENT_NAME - SCH User Id within Org with admin rights.  Format should be <us
 SCH_DEPLOYMENT_NAME - SCH Org you wish to connect to K8s.
   - Default - ${SCH_AGENT_NAME}-deployment-01
 SCH_DEPLOYMENT_LABELS - Command delimted list of lables to be applied to provisioned Data Collector instances.
-  - Default - all,${KUBE_CLUSTER_NAME},${SCH_AGENT_NAME},${SCH_DEPLOYMENT_NAME},${SDC_DOCKERTAG}
+  - Default - all,${KUBE_CLUSTER_NAME},${SCH_AGENT_NAME},${SCH_DEPLOYMENT_NAME},${SDC_DOCKER_TAG}
 
 
 DOCKER_USER - User ID for your Docker Hub account

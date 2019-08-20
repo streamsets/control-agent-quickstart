@@ -65,7 +65,6 @@ fi
 export SDC_DOCKER_IMAGE
 
 : ${SDC_DOCKER_TAG:=latest}
-#: ${SDC_DOCKERTAG:=3.0.0.0}
 export SDC_DOCKER_TAG
 
 : ${KUBE_NAMESPACE:=streamsets}
