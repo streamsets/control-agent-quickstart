@@ -55,14 +55,13 @@ case "$SCH_DEPLOYMENT_TYPE" in
         #This section is a little messy because some K8s implementations return the address in a field named 'ip' and others in field named 'hostname"
         ingress=$(kubectl get svc traefik-ingress-service -o json)
         ingress_host=$(echo $ingress | jq -r 'select(.status.loadBalancer.ingress != null) | .status.loadBalancer.ingress[].hostname')
-        if [ -n "${ingress_host}" ];
+        if [ -n "${ingress_host}" -a "${ingress_host}" != "null" ];
         then
           external_ip=$ingress_host
           break
         else
           ingress_ip=$(echo $ingress | jq -r 'select(.status.loadBalancer.ingress != null) | .status.loadBalancer.ingress[].ip')
-          echo Debug ingress_ip x${ingress_ip}x
-          if [ -n "${ingress_ip}" ];
+          if [ -n "${ingress_ip}" -a "${ingress_ip}" != "null" ];
           then
             external_ip=$ingress_ip
             break
