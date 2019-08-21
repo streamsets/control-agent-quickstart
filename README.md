@@ -109,6 +109,10 @@ SCH_DEPLOYMENT_NAME - SCH Org you wish to connect to K8s.
   - Default - ${SCH_AGENT_NAME}-deployment-01
 SCH_DEPLOYMENT_LABELS - Command delimted list of lables to be applied to provisioned Data Collector instances.
   - Default - all,${KUBE_CLUSTER_NAME},${SCH_AGENT_NAME},${SCH_DEPLOYMENT_NAME},${SDC_DOCKER_TAG}
+SCH_DEPLOYMENT_TYPE - Use case for SDC instances.  Defines how SDC instances will be used and how the UI will be be exposed.
+  - AUTHORING - (Default) A single SDC instance with access to the UI via a Public URL.  Includes an Ingress server and loadBalancer.
+  - EXECUTION - A group of SDC instancs that can be scaled via the SCH Deployments screen.  UI access with K8s port forwarding only.
+  - AUTOSCALE - (under development) Same EXECUTON except scaling happens automatically in response to cpu load
 
 
 DOCKER_USER - User ID for your Docker Hub account
