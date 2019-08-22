@@ -16,4 +16,4 @@
 
 KUBE_PROVIDER_GEO - Default "us-central1-a"
 
-KUBE_PROVIDER_MACHINETYPE - Default "n1-standard-1"
+KUBE_PROVIDER_MACHINETYPE - Default "n1-standard-4"

@@ -9,7 +9,7 @@ if [ -n "$KUBE_CREATE_CLUSTER" ]; then
   # if set, this will also attempt to run the gcloud command to provision a cluster
   gcloud container clusters create "${KUBE_CLUSTER_NAME}" \
     --zone "${KUBE_PROVIDER_GEO}" \
-    --machine-type "${GKE_MACHINE_TYPE}" \
+    --machine-type "${KUBE_PROVIDER_MACHINETYPE}" \
     --image-type "COS" \
     --disk-size "100" \
     --num-nodes "$KUBE_NODE_INITIALCOUNT" \

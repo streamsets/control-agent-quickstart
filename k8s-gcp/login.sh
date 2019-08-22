@@ -12,7 +12,7 @@ if [ -z "$(which gcloud)" ]; then
 fi
 
 if [ -z ${KUBE_PROVIDER_GEO+x} ]; then export KUBE_PROVIDER_GEO="us-central1-a"; fi
-if [ -z ${KUBE_PROVIDER_MACHINETYPE+x} ]; then export KUBE_PROVIDER_MACHINETYPE="t3.n1-standard-1"; fi
+if [ -z ${KUBE_PROVIDER_MACHINETYPE+x} ]; then export KUBE_PROVIDER_MACHINETYPE="n1-standard-4"; fi
 
 #Backward compatiblity with previous scripts
 if [ ! -z ${GKE_CLUSTER_NAME+x} ]; then export KUBE_CLUSTER_NAME=${GKE_CLUSTER_NAME}; fi
