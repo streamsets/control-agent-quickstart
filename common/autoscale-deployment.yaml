@@ -7,14 +7,14 @@ items:
     name: ${SCH_DEPLOYMENT_NAME}
     namespace: ${KUBE_NAMESPACE}
   spec:
-    replicas: 1
+    replicas: ${SDC_REPLICAS}
     selector:
       matchLabels:
-        app: streamsets-datacollector
+        app: ${SCH_DEPLOYMENT_NAME}
     template:
       metadata:
         labels:
-          app : streamsets-datacollector
+          app : ${SCH_DEPLOYMENT_NAME}
       spec:
         containers:
         - name : datacollector
@@ -26,6 +26,9 @@ items:
             valueFrom:
               fieldRef:
                 fieldPath: status.podIP
+          resources:
+            requests:
+              cpu: ${SDC_CPUS}
         imagePullSecrets:
         - name: dockerstore
 - apiVersion: autoscaling/v1
@@ -35,9 +38,9 @@ items:
     namespace: ${KUBE_NAMESPACE}
   spec:
     scaleTargetRef:
-      apiVersion: apps/v1beta1
+      apiVersion: apps/v1
       kind: Deployment
-      name: streamsets-datacollector
-    minReplicas: 1
-    maxReplicas: 10
-    targetCPUUtilizationPercentage: 50
+      name: ${SCH_DEPLOYMENT_NAME}
+    minReplicas: ${SDC_REPLICAS_MIN}
+    maxReplicas: ${SDC_REPLICAS_MAX}
+    targetCPUUtilizationPercentage: ${SDC_REPLICAS_CPU_THRESHOLD}

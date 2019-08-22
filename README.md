@@ -9,6 +9,10 @@ These configurations are for demonstration purposes only and will require modifi
 
 1. kubectl
 2. jq
+3. k8s metrics server (AUTOSCALE deployments only)
+  - Note: Metric Server already provided by default by the major K8s providers.  If you are adapting this
+    script to a custom K8s clusterl you may need to take extra steps to add this service.
+
 
 *See the individual K8s Provider folders for additional prerequisites.*
 
@@ -96,12 +100,32 @@ KUBE_PROVIDER_MACHINETYPE = Type of machine to be used for nodes when the cluste
   - Value will be cloud provider specific.  
   - See README for specific cloud provider for default value.
 
+
 SDC_DOCKER_IMAGE - The Name of the Docker iamge to be used.
   - Default is "streamsets/datacollector"
 
 SDC_DOCKER_TAG - The version of SDC to be deployed
   - Default is "latest"
   - If you want an older version, refer to Dockerhub to see the full list of allowed values.
+
+SDC_CPUS - Minimum number of CPUs to allocate for each replica (AUTOSCALE deployments only)
+  - Default = 2
+  - WARNING: If no node contains the requested number of CPUs, K8s will place the POD in a PENDING status.
+
+SDC_REPLICAS - Number of replicas to instantiate at in start up.
+  - Default = 1
+  - WARNING: This variable is ignored by AUTHORING deployments which always create 1 and only 1 replica.
+
+SDC_REPLICAS_MIN - Maximum number of SDC instances to execute (AUTOSCALE deployments only)
+  - Default = 1
+
+SDC_REPLICAS_MAX - Minimum number of SDC instances to execute (AUTOSCALE deployments only)
+  - Default = 10
+
+SDC_REPLICAS_CPU_THRESHOLD - CPU usage level at which new SDC instances will be spawned (AUTOSCALE deployments only)
+  - Default is 50
+  - Value represents a percentage of the CPU count defined in SDC_REPLICAS_CPUS
+  - See K8s documentation on HorizontalPodAutoscaler for more details.
 
 
 SCH_AGENT_DOCKER_TAG - The version of the Streamsets Control Agent
@@ -110,6 +134,7 @@ SCH_AGENT_DOCKER_TAG - The version of the Streamsets Control Agent
 
 SCH_AGENT_NAME - SCH User Id within Org with admin rights.  Format should be <user>@<org>
   - Default is ${KUBE_CLUSTER_NAME}-schagent
+
 
 SCH_DEPLOYMENT_NAME - SCH Org you wish to connect to K8s.
   - Default - ${SCH_AGENT_NAME}-deployment-01
