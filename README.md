@@ -98,17 +98,25 @@ KUBE_PROVIDER_MACHINETYPE = Type of machine to be used for nodes when the cluste
 
 SDC_DOCKER_IMAGE - The Name of the Docker iamge to be used.
   - Default is "streamsets/datacollector"
+
 SDC_DOCKER_TAG - The version of SDC to be deployed
   - Default is "latest"
   - If you want an older version, refer to Dockerhub to see the full list of allowed values.
 
 
+SCH_AGENT_DOCKER_TAG - The version of the Streamsets Control Agent
+  - Default is "latest"
+  - If you want an older version, refer to Dockerhub to see the full list of allowed values.
+
 SCH_AGENT_NAME - SCH User Id within Org with admin rights.  Format should be <user>@<org>
   - Default is ${KUBE_CLUSTER_NAME}-schagent
+
 SCH_DEPLOYMENT_NAME - SCH Org you wish to connect to K8s.
   - Default - ${SCH_AGENT_NAME}-deployment-01
+
 SCH_DEPLOYMENT_LABELS - Command delimted list of lables to be applied to provisioned Data Collector instances.
   - Default - all,${KUBE_CLUSTER_NAME},${SCH_AGENT_NAME},${SCH_DEPLOYMENT_NAME},${SDC_DOCKER_TAG}
+
 SCH_DEPLOYMENT_TYPE - Use case for SDC instances.  Defines how SDC instances will be used and how the UI will be be exposed.
   - AUTHORING - (Default) A single SDC instance with access to the UI via a Public URL.  Includes an Ingress server and loadBalancer.
   - EXECUTION - A group of SDC instancs that can be scaled via the SCH Deployments screen.  UI access with K8s port forwarding only.
@@ -117,7 +125,9 @@ SCH_DEPLOYMENT_TYPE - Use case for SDC instances.  Defines how SDC instances wil
 
 DOCKER_USER - User ID for your Docker Hub account
   - Only required if you will be using a customer Docker image stored in a private repository
+
 DOCKER_PASSWORD - Password for your Docker Hub account
   - Only required if you will be using a customer Docker image stored in a private repository
+
 DOCKER_EMAIL - Email associated with your Docker Hub account
   - Only required if you will be using a customer Docker image stored in a private repository

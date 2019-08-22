@@ -67,6 +67,9 @@ export SDC_DOCKER_IMAGE
 : ${SDC_DOCKER_TAG:=latest}
 export SDC_DOCKER_TAG
 
+: ${SCH_AGENT_DOCKER_TAG:=latest}
+export SCH_AGENT_DOCKER_TAG
+
 : ${KUBE_NAMESPACE:=streamsets}
 export KUBE_NAMESPACE
 
