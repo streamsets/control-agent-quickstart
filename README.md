@@ -4,14 +4,47 @@ This project provides pre-built scripts to configure Streamsets Control Hub (SCH
 
 These configurations are for demonstration purposes only and will require modification for use in a production environment.
 
+## Deployment Modes
+
+This script can create deployments for the the following use cases:
+
+### AUTHORING (Default)
+A single SDC instance with access to the UI via a Public URL.  This configuration includes an ingress server and loadBalancer deployment within K8s.
+
+The details of the loadBalancer implementation will vary depending on the K8s provider you use.  If you are working on a private K8s installation that does not implement a loadBalancer you will not be able to access the UI without modifying this script.
+
+The ingress deployment used Traefik and provides SSL termination. The SSL configuration uses a self-signed certificate.   **Before you can use the SDC instance for pipeline validations and previews from SCH you must click on the Datacollector's link within SCH and accept the self-signed certificate.**
+
+### EXECUTION
+A group of SDC instancs that can be scaled via the SCH Deployments screen.  
+
+These instances are not intended for development or any other activities that require routine access to the SDC UI.  The links displayed on SCH Data Collectors screeen do not work.  They are only intended to document that naem of the pod within the K8s instance.  **Remote access to the SDC UIs possible, but only with K8s port forwarding only.**
+
+To access the UI for an SDC instance you need to:
+1. Find the name of the instance you want to access via SCH Data Collectors screen or `kubectl get pods` command.
+2. Enter port forwarding command via kubectl.  Example:
+> `kubectl port-forward pods/${Instance-Name} 18777:18630
+Forwarding from 127.0.0.1:18777 -> 18630
+Forwarding from [::1]:18777 -> 18630`
+
+  Where `Instance-Name` is the value from step 1.
+
+3. Open your browser to `localhost:18777`
+
+
+### AUTOSCALE
+Same as EXECUTON mode except the number of SDC instances will be scaled automatically in response to to cpu load.
+
+Scaling is implemented via the K8s HorizontalPodAutoscaler.  This requires a Metric Server deployment in K8s cluster.  The Metric Server is included by default in K8s deployments of cloud providers.  If you are adapting this
+script for use with custom K8s cluster, you may need to take extra steps to add this service. See K8s the documentation for more details.
+
+NOTE: Autocaling is based on the host load as seen by K8s.  This is different than the values displayed in SCH which are based on the JVM load.
 
 ## Prerequisites:
 
 1. kubectl
 2. jq
 3. k8s metrics server (AUTOSCALE deployments only)
-  - Note: Metric Server already provided by default by the major K8s providers.  If you are adapting this
-    script to a custom K8s clusterl you may need to take extra steps to add this service.
 
 
 *See the individual K8s Provider folders for additional prerequisites.*
@@ -125,7 +158,6 @@ SDC_REPLICAS_MAX - Minimum number of SDC instances to execute (AUTOSCALE deploym
 SDC_REPLICAS_CPU_THRESHOLD - CPU usage level at which new SDC instances will be spawned (AUTOSCALE deployments only)
   - Default is 50
   - Value represents a percentage of the CPU count defined in SDC_REPLICAS_CPUS
-  - See K8s documentation on HorizontalPodAutoscaler for more details.
 
 
 SCH_AGENT_DOCKER_TAG - The version of the Streamsets Control Agent
@@ -142,10 +174,8 @@ SCH_DEPLOYMENT_NAME - SCH Org you wish to connect to K8s.
 SCH_DEPLOYMENT_LABELS - Command delimted list of lables to be applied to provisioned Data Collector instances.
   - Default - all,${KUBE_CLUSTER_NAME},${SCH_AGENT_NAME},${SCH_DEPLOYMENT_NAME},${SDC_DOCKER_TAG}
 
-SCH_DEPLOYMENT_TYPE - Use case for SDC instances.  Defines how SDC instances will be used and how the UI will be be exposed.
-  - AUTHORING - (Default) A single SDC instance with access to the UI via a Public URL.  Includes an Ingress server and loadBalancer.
-  - EXECUTION - A group of SDC instancs that can be scaled via the SCH Deployments screen.  UI access with K8s port forwarding only.
-  - AUTOSCALE - (under development) Same EXECUTON except scaling happens automatically in response to cpu load
+SCH_DEPLOYMENT_TYPE - Defines how SDC instances will be used and how the UI will be be exposed.
+  - See <a href="#heading-ids">Deployment Modes</a> for more details
 
 
 DOCKER_USER - User ID for your Docker Hub account
