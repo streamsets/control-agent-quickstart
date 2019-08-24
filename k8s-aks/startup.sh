@@ -6,9 +6,12 @@ source login.sh
 ######################
 
  if [ -n "${KUBE_CREATE_CLUSTER}" ]; then
+  echo Creating K8s Cluster
   # if set, this will also attempt to run the az aks command to provision a cluster
   # create a resource group
+  echo ... creating Resource Group ${AZURE_RESOURCE_GROUP}
   az group create --name "${AZURE_RESOURCE_GROUP}" --location "${KUBE_PROVIDER_GEO}" || { echo 'ERROR: Unable to create resource group' ; exit 1; }
+  echo ... creating Cluster
   az aks create --resource-group "${AZURE_RESOURCE_GROUP}" \
   --name "${KUBE_CLUSTER_NAME}" \
   --node-count "${KUBE_NODE_INITIALCOUNT}" \
@@ -16,6 +19,7 @@ source login.sh
   --enable-addons monitoring \
   --generate-ssh-keys || { echo 'ERROR: Unable to create AKS instance' ; exit 1; }
 fi
+echo Configuring kubectl
 az aks get-credentials --resource-group ${AZURE_RESOURCE_GROUP} --name ${KUBE_CLUSTER_NAME}
 # Set the namespace
 kubectl create namespace ${KUBE_NAMESPACE}
