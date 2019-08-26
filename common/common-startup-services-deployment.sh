@@ -7,8 +7,8 @@ if [ $# -eq 0 ]
     exit
 fi
 
-echo Setting Namespace on Kubectl Context
-kubectl config set-context $(kubectl config current-context) --namespace=${KUBE_NAMESPACE} || { echo 'ERROR: Failed to set kubectl context' ; exit 1; }
+echo Setting Kubectl Context and Namespace
+kubectl config set-context ${KUBE_CLUSTER_NAME} --namespace=${KUBE_NAMESPACE} || { echo 'ERROR: Failed to set kubectl context' ; exit 1; }
 
 ######################
 # Initialize
