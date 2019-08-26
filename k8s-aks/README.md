@@ -20,5 +20,7 @@ See the root directory README for additional prerequisites.*
 
 ### Optional
 
-KUBE_PROVIDER_GEO - Default "westus"
-KUBE_PROVIDER_MACHINETYPE - Default "KUBE_PROVIDER_MACHINETYPE".
+KUBE_PROVIDER_GEO - Default = "westus"
+KUBE_PROVIDER_MACHINETYPE - Default = "Standard_DS3_v2".
+
+AZURE_RESOURCE_GROUP - Default = KUBE_CLUSTER_NAME
