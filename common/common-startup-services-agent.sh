@@ -12,9 +12,6 @@ if [ $# -eq 0 ]
 
 fi
 
-echo Setting Kubectl Context and Namespace
-kubectl config set-context ${KUBE_CLUSTER_NAME} --namespace=${KUBE_NAMESPACE} || { echo 'ERROR: Failed to set kubectl context' ; exit 1; }
-
 #######################
 # Setup Control Agent #
 #######################
@@ -58,10 +55,10 @@ kubectl create configmap ${SCH_AGENT_NAME}-config \
 
 # 4. Launch Agent
 echo ... Launch Agent
-cat ${COMMON_DIR}/control-agent.yaml | envsubst > ${PROVIDER_DIR}/_tmp_control-agent.yaml
+cat ${COMMON_DIR}/control-agent.yaml | envsubst > ${PWD}/_tmp_control-agent.yaml
 #exit
-#cat control-agent.yaml | envsubst | sed -E ':a;N;$!ba;s/\r{0,1}\n/\\n/g' > ${PROVIDER_DIR}/_tmp_control-agent.yaml
-kubectl create -f ${PROVIDER_DIR}/_tmp_control-agent.yaml || { echo 'ERROR: Failed to launch Streamsets Control Agent in Kubernetes' ; exit 1; }
+#cat control-agent.yaml | envsubst | sed -E ':a;N;$!ba;s/\r{0,1}\n/\\n/g' > ${PWD}/_tmp_control-agent.yaml
+kubectl create -f ${PWD}/_tmp_control-agent.yaml || { echo 'ERROR: Failed to launch Streamsets Control Agent in Kubernetes' ; exit 1; }
 
 # 5. wait for agent to be registered with SCH
 echo ... wait for agent to be registered with SCH

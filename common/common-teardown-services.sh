@@ -1,9 +1,6 @@
 #!/bin/bash
 echo Running common-teardown-services.sh on cluster ${KUBE_CLUSTER_NAME}
 
-echo Setting Kubectl Context and Namespace
-kubectl config set-context ${KUBE_CLUSTER_NAME} --namespace=${KUBE_NAMESPACE} || { echo 'ERROR: Failed to set kubectl context' ; exit 1; }
-
 ######################
 # Initialize
 ######################

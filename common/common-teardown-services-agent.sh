@@ -7,9 +7,6 @@ if [ $# -eq 0 ]
     exit
 fi
 
-echo Setting Kubectl Context and Namespace
-kubectl config set-context ${KUBE_CLUSTER_NAME} --namespace=${KUBE_NAMESPACE} || { echo 'ERROR: Failed to set kubectl context' ; exit 1; }
-
 ######################
 # Initialize
 ######################
@@ -54,8 +51,8 @@ if [[ -f "agent-${SCH_AGENT_NAME}.id" && -s "agent-${SCH_AGENT_NAME}.id" ]]; the
     rm -f agent-${SCH_AGENT_NAME}.id
 
     echo "... Delete K8s Pod"
-    cat ${COMMON_DIR}/control-agent.yaml | envsubst > ${PROVIDER_DIR}/_tmp_control-agent.yaml
-    kubectl delete -f ${PROVIDER_DIR}/_tmp_control-agent.yaml
+    cat ${COMMON_DIR}/control-agent.yaml | envsubst > ${PWD}/_tmp_control-agent.yaml
+    kubectl delete -f ${PWD}/_tmp_control-agent.yaml
     echo "Deleted control agent"
 
     # Delete secrets

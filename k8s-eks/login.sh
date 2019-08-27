@@ -3,9 +3,6 @@
 # Contain variable and checks that are required for EKS environemnt setups
 #----------------------------------------------------------
 
-export PROVIDER_DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" >/dev/null 2>&1 && pwd )"
-export COMMON_DIR=`echo $(cd ${PROVIDER_DIR}/../common; pwd)`
-
 : ${EKS_VPC_TEMPLATE:="https://amazon-eks.s3-us-west-2.amazonaws.com/cloudformation/2019-02-11/amazon-eks-vpc-sample.yaml"}
 export EKS_VPC_TEMPLATE
 
@@ -38,5 +35,6 @@ if [ ! -z ${EKS_NODE_INITIALCOUNT+x} ]; then export KUBE_NODE_INITIALCOUNT=${EKS
 if [ ! -z ${AWS_REGION+x} ]; then export KUBE_PROVIDER_GEO=${AWS_REGION}; fi
 if [ ! -z ${EKS_NODE_INSTANCETYPE+x} ]; then export KUBE_PROVIDER_MACHINETYPE=${EKS_NODE_INSTANCETYPE}; fi
 
-source ${COMMON_DIR}/common-login.sh
-echo login.sh KUBE_NAMESPACE ${KUBE_NAMESPACE}
+source ../common/common-login.sh
+
+echo Exiting login.sh

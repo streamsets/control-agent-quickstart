@@ -7,9 +7,6 @@ if [ $# -eq 0 ]
     exit
 fi
 
-echo Setting Kubectl Context and Namespace
-kubectl config set-context ${KUBE_CLUSTER_NAME} --namespace=${KUBE_NAMESPACE} || { echo 'ERROR: Failed to set kubectl context' ; exit 1; }
-
 ######################
 # Initialize
 ######################
@@ -72,20 +69,20 @@ case "$SCH_DEPLOYMENT_TYPE" in
     echo "External Endpoint to Access Authoring SDC : ${external_ip}\n"
     export external_ip
 
-    cat ${COMMON_DIR}/deployment.yaml | envsubst | sed -E ':a;N;$!ba;s/\r{0,1}\n/\\n/g' > ${PROVIDER_DIR}/_tmp_deployment.yaml
+    cat ${COMMON_DIR}/deployment.yaml | envsubst | sed -E ':a;N;$!ba;s/\r{0,1}\n/\\n/g' > ${PWD}/_tmp_deployment.yaml
     ;;
   EXECUTION)
-    cat ${COMMON_DIR}/execution-deployment.yaml | envsubst | sed -E ':a;N;$!ba;s/\r{0,1}\n/\\n/g' > ${PROVIDER_DIR}/_tmp_deployment.yaml
+    cat ${COMMON_DIR}/execution-deployment.yaml | envsubst | sed -E ':a;N;$!ba;s/\r{0,1}\n/\\n/g' > ${PWD}/_tmp_deployment.yaml
     ;;
   AUTOSCALE)
-    cat ${COMMON_DIR}/autoscale-deployment.yaml | envsubst | sed -E ':a;N;$!ba;s/\r{0,1}\n/\\n/g' > ${PROVIDER_DIR}/_tmp_deployment.yaml
+    cat ${COMMON_DIR}/autoscale-deployment.yaml | envsubst | sed -E ':a;N;$!ba;s/\r{0,1}\n/\\n/g' > ${PWD}/_tmp_deployment.yaml
     ;;
   *)
     echo ERROR - Unknown Deployment type: ${SCH_DEPLOYMENT_TYPE}
     exit
 esac
 
-DEP_ID=$(curl -s -X PUT -d "{\"name\":\"${SCH_DEPLOYMENT_NAME}\",\"description\":\"Authoring sdc\",\"labels\":[\"${SCH_DEPLOYMENT_LABELS}\"],\"numInstances\":${SDC_REPLICAS},\"spec\":\"$(cat ${PROVIDER_DIR}/_tmp_deployment.yaml)\",\"agentId\":\"${agent_id}\"}" "${SCH_URL}/provisioning/rest/v1/deployments" --header "Content-Type:application/json" --header "X-Requested-By:SDC" --header "X-SS-REST-CALL:true" --header "X-SS-User-Auth-Token:${SCH_TOKEN}" | jq -r '.id') || { echo 'ERROR: Failed to create deployment in SCH' ; exit 1; }
+DEP_ID=$(curl -s -X PUT -d "{\"name\":\"${SCH_DEPLOYMENT_NAME}\",\"description\":\"Authoring sdc\",\"labels\":[\"${SCH_DEPLOYMENT_LABELS}\"],\"numInstances\":${SDC_REPLICAS},\"spec\":\"$(cat ${PWD}/_tmp_deployment.yaml)\",\"agentId\":\"${agent_id}\"}" "${SCH_URL}/provisioning/rest/v1/deployments" --header "Content-Type:application/json" --header "X-Requested-By:SDC" --header "X-SS-REST-CALL:true" --header "X-SS-User-Auth-Token:${SCH_TOKEN}" | jq -r '.id') || { echo 'ERROR: Failed to create deployment in SCH' ; exit 1; }
 echo "Successfully created deployment with ID \"${DEP_ID}\""
 
 # 2. Store Deployment Id in a file for use by the teardwon script.

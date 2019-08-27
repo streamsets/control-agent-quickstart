@@ -5,6 +5,14 @@ echo K8S Cluster Name: ${KUBE_CLUSTER_NAME}
 echo K8S Namespace: ${KUBE_NAMESPACE}
 echo Agent name: ${SCH_AGENT_NAME}
 
+COMMON_DIR="`dirname \"$0\"`"                 # relative
+COMMON_DIR="${COMMON_DIR}/../common"
+COMMON_DIR="`( cd \"$COMMON_DIR\" && pwd )`"  # absolutized and normalized
+if [ -z "$COMMON_DIR" ] ; then
+  echo "ERROR - For some reason, the path is not accessible to the script (e.g. permissions re-evaled after suid)"
+  exit 1  # fail
+fi
+export COMMON_DIR
 
 #----------------------------------------------------------
 # Contain variable and checks that are common to all SCH/K8S environemnt setups
@@ -105,5 +113,8 @@ export SCH_DEPLOYMENT_TYPE
 echo K8S Cluster Name: ${KUBE_CLUSTER_NAME}
 echo K8S Namespace: ${KUBE_NAMESPACE}
 echo Agent name: ${SCH_AGENT_NAME}
+
+echo Setting Kubectl Context and Namespace
+kubectl config set-context ${KUBE_CLUSTER_NAME} --namespace=${KUBE_NAMESPACE} || { echo 'ERROR: Failed to set kubectl context' ; exit 1; }
 
 echo Exiting common-login.sh

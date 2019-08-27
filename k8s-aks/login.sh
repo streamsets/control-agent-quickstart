@@ -1,9 +1,6 @@
 #!/bin/bash
 echo Running login.sh
 
-export PROVIDER_DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" >/dev/null 2>&1 && pwd )"
-export COMMON_DIR=`echo $(cd ${PROVIDER_DIR}/../common; pwd)`
-
 if [ -z "$(which az)" ]; then
   echo "This script requires the 'az cli' utility"
   echo "Please install it via one of the methods described here:"
@@ -23,7 +20,6 @@ if [ ! -z ${DELETE_AKS_CLUSTER+x} ]; then export KUBE_DELETE_CLUSTER=${DELETE_AK
 
 
 
-source ${COMMON_DIR}/common-login.sh
-echo login.sh KUBE_NAMESPACE ${KUBE_NAMESPACE}
+source ../common/common-login.sh
 
 echo Exiting login.sh
