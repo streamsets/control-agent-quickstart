@@ -70,5 +70,6 @@ echo ... configuring kubectl
 aws eks --region ${AWS_REGION} update-kubeconfig --name "${KUBE_CLUSTER_NAME}" --alias "${KUBE_CLUSTER_NAME}"     || { echo 'ERROR: Failed to configure kubectl' ; exit 1; }
 echo ... create namespace
 kubectl create namespace ${KUBE_NAMESPACE} || { echo 'ERROR: Failed to create namespace in Kubernetes' ; exit 1; }
+kubectl config set-context $(kubectl config current-context) --namespace=${KUBE_NAMESPACE}
 
 ${COMMON_DIR}/common-startup-services.sh
