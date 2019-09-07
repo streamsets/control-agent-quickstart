@@ -166,7 +166,7 @@ SCH_AGENT_DOCKER_TAG - The version of the Streamsets Control Agent
   - If you want an older version, refer to Dockerhub to see the full list of allowed values.
 
 SCH_AGENT_NAME - SCH User Id within Org with admin rights.  Format should be <user>@<org>
-  - Default is ${KUBE_CLUSTER_NAME}-schagent
+  - Default is ${KUBE_CLUSTER_NAME}-pa
 
 
 SCH_DEPLOYMENT_NAME - SCH Org you wish to connect to K8s.

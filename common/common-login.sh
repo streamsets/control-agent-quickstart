@@ -96,7 +96,7 @@ export KUBE_NAMESPACE
 : ${KUBE_CLUSTER_NAME:="streamsets-quickstart"}
 export KUBE_CLUSTER_NAME
 
-if [ -z ${SCH_AGENT_NAME+x} ]; then export SCH_AGENT_NAME=${KUBE_CLUSTER_NAME}-schagent01; fi
+if [ -z ${SCH_AGENT_NAME+x} ]; then export SCH_AGENT_NAME=${KUBE_CLUSTER_NAME}-pa01; fi
 export SCH_AGENT_NAME
 
 : ${SCH_DEPLOYMENT_TYPE:=AUTHORING}
