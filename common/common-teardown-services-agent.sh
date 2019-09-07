@@ -22,8 +22,9 @@ if [[ -f "agent-${SCH_AGENT_NAME}.id" && -s "agent-${SCH_AGENT_NAME}.id" ]]; the
     # 1. Stop and Delete deployment if one is active
     echo "Stop and Delete deployment if one is active"
     #TODO Should dynically discover deployment names via REST API based on agent name
-    for i in deployment-${SCH_AGENT_NAME}*.id; do
-            [ -f "$i" ] || break # break if zero matches
+    #for i in deployment-${SCH_AGENT_NAME}*.id; do
+    i=deployment-${SCH_DEPLOYMENT_NAME}*.id
+            #[ -f "$i" ] || break # break if zero matches
             deployment_id="`cat $i`"
             # Stop deployment
             curl -s -X POST "${SCH_URL}/provisioning/rest/v1/deployment/${deployment_id}/stop" --header "Content-Type:application/json" --header "X-Requested-By:SDC" --header "X-SS-REST-CALL:true" --header "X-SS-User-Auth-Token:${SCH_TOKEN}"
@@ -41,7 +42,7 @@ if [[ -f "agent-${SCH_AGENT_NAME}.id" && -s "agent-${SCH_AGENT_NAME}.id" ]]; the
 
             rm -f $i
 
-    done
+    #done
 
     # Delete agent
     echo "Deactivate and delete agent"

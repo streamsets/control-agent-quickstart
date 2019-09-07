@@ -7,18 +7,17 @@ ${COMMON_DIR}/common-kubectl-connect.sh
 # Initialize
 ######################
 
-echo Running `basename "$0"` on cluster ${KUBE_CLUSTER_NAME}
-
 #TODO Change to delete all agents on cluster
-for i in agent-${KUBE_CLUSTER_NAME}*.id; do
-    [ -f "$i" ] || break # break if zero matches
+#for i in agent-${KUBE_CLUSTER_NAME}*.id; do
+i=agent-${SCH_AGENT_NAME}.id
+    #[ -f "$i" ] || break # break if zero matches
     suffix=".id";
     basename=${i%$suffix}; #Remove suffix
-    prefix="agent-${KUBE_CLUSTER_NAME}-schagent";
+    prefix="agent-${KUBE_CLUSTER_NAME}-pa";
     agentnamesuffix=${basename#$prefix}; #Remove prefix
     echo Deleting agent suffix $agentnamesuffix;
     ${COMMON_DIR}/common-teardown-services-agent.sh $agentnamesuffix
-done
+#done
 
 
 #echo Deconfigure Kubernetes
