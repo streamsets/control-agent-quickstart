@@ -123,7 +123,8 @@ KUBE_DELETE_CLUSTER - Should a new K8s instance be deleted (Teardown only)
 KUBE_CLUSTER_NAME - Name of cluster to be created/used as seen in the EKS web UI
   - Default is "streamsets-quickstart"
 
-KUBE_NODE_INITIALCOUNT - The number of nodes the cluster should be created with.  Default is 3.
+KUBE_NODE_INITIALCOUNT - The number of nodes the cluster should be created with.  
+  - Default is 1 if SCH_DEPLOYMENT_TYPE is set to "AUTHORING".  Otherwise the default is 3.
 
 KUBE_PROVIDER_GEO = The cloud-rpovider specific location or datacenter where the cluster is to be created.
   - Value will be cloud provider specific.  

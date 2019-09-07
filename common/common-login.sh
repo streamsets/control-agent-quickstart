@@ -96,9 +96,6 @@ export KUBE_NAMESPACE
 : ${KUBE_CLUSTER_NAME:="streamsets-quickstart"}
 export KUBE_CLUSTER_NAME
 
-: ${KUBE_NODE_INITIALCOUNT:=3}
-export KUBE_NODE_INITIALCOUNT
-
 if [ -z ${SCH_AGENT_NAME+x} ]; then export SCH_AGENT_NAME=${KUBE_CLUSTER_NAME}-schagent01; fi
 export SCH_AGENT_NAME
 
@@ -106,8 +103,17 @@ export SCH_AGENT_NAME
 SCH_DEPLOYMENT_TYPE=${SCH_DEPLOYMENT_TYPE^^}  #Convert to Uppercase
 export SCH_DEPLOYMENT_TYPE
 
+if [ -z "${KUBE_NODE_INITIALCOUNT}" ] ; then
+  if [ "${SCH_DEPLOYMENT_TYPE}" == "AUTHORING" ] ; then
+    export KUBE_NODE_INITIALCOUNT=1
+  else
+    export KUBE_NODE_INITIALCOUNT=3
+  fi
+fi
+
 echo K8S Cluster Name: ${KUBE_CLUSTER_NAME}
 echo K8S Namespace: ${KUBE_NAMESPACE}
+echo K8S Initial Node Count $KUBE_NODE_INITIALCOUNT
 echo Agent name: ${SCH_AGENT_NAME}
 
 echo Exiting common-login.sh
