@@ -1,6 +1,8 @@
 #!/bin/bash
 echo Running common-startup-services-deployment.sh on cluster ${KUBE_CLUSTER_NAME}
 
+${COMMON_DIR}/common-kubectl-connect.sh
+
 if [ $# -eq 0 ]
   then
     echo "Usage: startup-services-deployment.sh <deployment name suffix>"

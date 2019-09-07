@@ -18,13 +18,16 @@ if [ -n "$KUBE_CREATE_CLUSTER" ]; then
     --enable-cloud-monitoring
 
   gcloud container clusters get-credentials "${KUBE_CLUSTER_NAME}" \
-    --zone "${KUBE_PROVIDER_GEO}"
+    --zone "${KUBE_PROVIDER_GEO}" || { echo 'ERROR: Failed to configure kubectl context' ; exit 1; }
+
+  #Subsequent scripts expect Cluster name and kubectl Context name to be the same.
+  kubectl config rename-context $(kubectl config current-context) ${KUBE_CLUSTER_NAME} || { echo 'ERROR: Failed to rename kubectl context' ; exit 1; }
 
 fi
 
 # Set the namespace
 kubectl create namespace ${KUBE_NAMESPACE}
-kubectl config set-context $(kubectl config current-context) --namespace=${KUBE_NAMESPACE}
+kubectl config set-context ${KUBE_CLUSTER_NAME} --namespace=${KUBE_NAMESPACE}
 
 GCP_IAM_USERNAME=$(gcloud auth list --filter=status:ACTIVE --format="value(account)")
 kubectl create clusterrolebinding cluster-admin-binding \

@@ -1,6 +1,8 @@
 #!/bin/bash
 echo Running common-startup-services-agent.sh on cluster ${KUBE_CLUSTER_NAME}
 
+${COMMON_DIR}/common-kubectl-connect.sh
+
 echo K8S Cluster Name: ${KUBE_CLUSTER_NAME}
 echo K8S Namespace: ${KUBE_NAMESPACE}
 echo Agent name: ${SCH_AGENT_NAME}

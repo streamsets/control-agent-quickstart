@@ -1,6 +1,8 @@
 #!/bin/bash
 echo Running common-teardown-services-agent.sh on cluster ${KUBE_CLUSTER_NAME}
 
+${COMMON_DIR}/common-kubectl-connect.sh
+
 if [ $# -eq 0 ]
   then
     echo "Usage: teardown-services-agent.sh <agent name suffix>"

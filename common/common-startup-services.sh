@@ -1,6 +1,8 @@
 #!/bin/bash
 echo Running common-startup-services.sh on cluster ${KUBE_CLUSTER_NAME}
 
+${COMMON_DIR}/common-kubectl-connect.sh
+
 if [ "$SCH_DEPLOYMENT_TYPE" == "AUTHORING" ]; then
 
     ####################################
