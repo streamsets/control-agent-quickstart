@@ -3,17 +3,11 @@ echo Running common-startup-services-deployment.sh on cluster ${KUBE_CLUSTER_NAM
 
 ${COMMON_DIR}/common-kubectl-connect.sh
 
-if [ $# -eq 0 ]
-  then
-    echo "Usage: startup-services-deployment.sh <deployment name suffix>"
-    exit
-fi
-
 ######################
 # Initialize
 ######################
 
-if [ -z ${SCH_DEPLOYMENT_NAME+x} ]; then export SCH_DEPLOYMENT_NAME=${SCH_AGENT_NAME}-deployment${1}; fi
+if [ -z ${SCH_DEPLOYMENT_NAME+x} ]; then export SCH_DEPLOYMENT_NAME=${SCH_AGENT_NAME}-deploy01; fi
 
 agent_id="`cat agent-${SCH_AGENT_NAME}.id`"
 
@@ -28,7 +22,7 @@ SCH_DEPLOYMENT_LABELS=${SCH_DEPLOYMENT_TYPE},${KUBE_CLUSTER_NAME},${SCH_AGENT_NA
 
 echo Create Deployment ${SCH_DEPLOYMENT_NAME} with labels: ${SCH_DEPLOYMENT_LABELS}
 
-# 0. create Secret for Docker credentials (required if private repository)
+# Create Secret for Docker credentials (required if private repository)
 if [ ! -z ${DOCKER_USER+x} ];
 then
   kubectl delete secret dockerstore \
@@ -37,7 +31,7 @@ then
   || { echo 'ERROR: Failed to create secret for Docker credentials in Kubernetes' ; exit 1; }
 fi
 
-# 1. create deployment
+# Create deployment
 
 export KUBE_NAMESPACE
 export SDC_DOCKER_IMAGE
@@ -46,8 +40,13 @@ export SDC_DOCKER_TAG
 case "$SCH_DEPLOYMENT_TYPE" in
   AUTHORING)
 
+    echo ... create service and ingress for Authoring SDC
+    # Create Authoring SDC Service and Ingress
+    cat ${COMMON_DIR}/authoring-sdc-svc.yaml | envsubst > ${PWD}/_tmp_authoring-sdc-svc.yaml
+    kubectl create -f ${PWD}/_tmp_authoring-sdc-svc.yaml  || { echo 'ERROR: Failed to create service for Authoring instance' ; exit 1; }
+
     echo ... wait for traefik external ip address
-    # 4. Wait for an external endpoint to be assigned
+    # Wait for an external endpoint to be assigned
     external_ip=""
     #while [ -z $external_ip ]; do
     while [ 1 ]; do
@@ -87,10 +86,10 @@ esac
 DEP_ID=$(curl -s -X PUT -d "{\"name\":\"${SCH_DEPLOYMENT_NAME}\",\"description\":\"Authoring sdc\",\"labels\":[\"${SCH_DEPLOYMENT_LABELS}\"],\"numInstances\":${SDC_REPLICAS},\"spec\":\"$(cat ${PWD}/_tmp_deployment.yaml)\",\"agentId\":\"${agent_id}\"}" "${SCH_URL}/provisioning/rest/v1/deployments" --header "Content-Type:application/json" --header "X-Requested-By:SDC" --header "X-SS-REST-CALL:true" --header "X-SS-User-Auth-Token:${SCH_TOKEN}" | jq -r '.id') || { echo 'ERROR: Failed to create deployment in SCH' ; exit 1; }
 echo "Successfully created deployment with ID \"${DEP_ID}\""
 
-# 2. Store Deployment Id in a file for use by the teardwon script.
+# Store Deployment Id in a file for use by the teardwon script.
 echo ${DEP_ID} > deployment-${SCH_DEPLOYMENT_NAME}.id
 
-# 3. Start Deployment
+# Start Deployment
 curl -s -X POST "${SCH_URL}/provisioning/rest/v1/deployment/${DEP_ID}/start?dpmAgentId=${agent_id}" --header "Content-Type:application/json" --header "X-Requested-By:SDC" --header "X-SS-REST-CALL:true" --header "X-SS-User-Auth-Token:${SCH_TOKEN}" || { echo 'ERROR: Failed to start deployment in SCH' ; exit 1; }
 echo "Successfully started deployment \"${SCH_DEPLOYMENT_NAME}\" on Agent \"${agent_id}\""
 

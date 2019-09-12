@@ -3,46 +3,23 @@ echo Running common-teardown-services-agent.sh on cluster ${KUBE_CLUSTER_NAME}
 
 ${COMMON_DIR}/common-kubectl-connect.sh
 
-if [ $# -eq 0 ]
-  then
-    echo "Usage: teardown-services-agent.sh <agent name suffix>"
-    exit
-fi
-
 ######################
 # Initialize
 ######################
 
-# 2. Delete and Unregister Control Agent if one is active
+#Delete and Unregister Control Agent if one is active
 if [[ -f "agent-${SCH_AGENT_NAME}.id" && -s "agent-${SCH_AGENT_NAME}.id" ]]; then
     agent_id="`cat agent-${SCH_AGENT_NAME}.id`"
     echo Agent ID: ${agent_id}
     echo K8S Namespace: ${KUBE_NAMESPACE}
 
-    # 1. Stop and Delete deployment if one is active
+    #Stop and Delete deployment if one is active
     echo "Stop and Delete deployment if one is active"
     #TODO Should dynically discover deployment names via REST API based on agent name
     #for i in deployment-${SCH_AGENT_NAME}*.id; do
-    i=deployment-${SCH_DEPLOYMENT_NAME}*.id
-            #[ -f "$i" ] || break # break if zero matches
-            deployment_id="`cat $i`"
-            # Stop deployment
-            curl -s -X POST "${SCH_URL}/provisioning/rest/v1/deployment/${deployment_id}/stop" --header "Content-Type:application/json" --header "X-Requested-By:SDC" --header "X-SS-REST-CALL:true" --header "X-SS-User-Auth-Token:${SCH_TOKEN}"
 
-            # Wait for deployment to become inactive
-            deploymentStatus="ACTIVE"
-            while [[ "${deploymentStatus}" != "INACTIVE" ]]; do
-              echo "\nCurrent Deployment Status is \"${deploymentStatus}\". Waiting for it to become inactive"
-              sleep 10
-              deploymentStatus=$(curl -X POST -d "[ \"${deployment_id}\" ]" "${SCH_URL}/provisioning/rest/v1/deployments/status" --header "Content-Type:application/json" --header "X-Requested-By:SDC" --header "X-SS-REST-CALL:true" --header "X-SS-User-Auth-Token:${SCH_TOKEN}" | jq -r 'map(select([])|.status)[]')
-            done
-
-            # Delete deployment
-            curl -s -X DELETE "${SCH_URL}/provisioning/rest/v1/deployment/${deployment_id}" --header "Content-Type:application/json" --header "X-Requested-By:SDC" --header "X-SS-REST-CALL:true" --header "X-SS-User-Auth-Token:${SCH_TOKEN}"
-
-            rm -f $i
-
-    #done
+    #Delete Deployment if any
+    ${COMMON_DIR}/common-teardown-services-deployment.sh
 
     # Delete agent
     echo "Deactivate and delete agent"

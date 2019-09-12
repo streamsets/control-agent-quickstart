@@ -32,10 +32,6 @@ kubectl delete -f ${COMMON_DIR}/traefik-dep.yaml
 echo "Deleting configmap traefik-conf"
 kubectl delete configmap traefik-conf
 
-echo ... Deleting Authoring SDC Service
-kubectl delete -f ${COMMON_DIR}/authoring-sdc-svc.yaml
-
-
 # Delete the certificate and key file
 echo "... Deleting TLS key"
 kubectl delete secret traefik-cert

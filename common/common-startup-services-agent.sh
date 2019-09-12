@@ -7,10 +7,6 @@ echo K8S Cluster Name: ${KUBE_CLUSTER_NAME}
 echo K8S Namespace: ${KUBE_NAMESPACE}
 echo Agent name: ${SCH_AGENT_NAME}
 
-if [ $# -eq 0 ]
-  then
-    echo "Usage: startup-services-agent.sh <agent name suffix>"
-    exit
 
 fi
 

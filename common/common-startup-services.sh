@@ -3,7 +3,7 @@ echo Running common-startup-services.sh on cluster ${KUBE_CLUSTER_NAME}
 
 ${COMMON_DIR}/common-kubectl-connect.sh
 
-if [ "$SCH_DEPLOYMENT_TYPE" == "AUTHORING" ]; then
+#if [ "$SCH_DEPLOYMENT_TYPE" == "AUTHORING" ]; then
 
     ####################################
     # Setup Traefik Ingress Controller #
@@ -58,7 +58,7 @@ if [ "$SCH_DEPLOYMENT_TYPE" == "AUTHORING" ]; then
     done
     echo "External Endpoint to Access Authoring SDC : ${external_ip}\n"
 
-fi
+#fi
 
 ########################################################################
 # Setup Service Account with roles to read required kubernetes objects #
@@ -80,14 +80,6 @@ kubectl create rolebinding streamsets-agent \
     --serviceaccount=${KUBE_NAMESPACE}:streamsets-agent \
     --namespace=${KUBE_NAMESPACE} \
     || { echo 'ERROR: Failed to create rolebinding in Kubernetes' ; exit 1; }
-
-if [ "$SCH_DEPLOYMENT_TYPE" == "AUTHORING" ]; then
-
-    echo ... create service and ingress for Authoring SDC
-    # 1. Create Authoring SDC Service and Ingress
-    kubectl create -f ${COMMON_DIR}/authoring-sdc-svc.yaml  || { echo 'ERROR: Failed to create service and ingress for SDC instance' ; exit 1; }
-
-fi
 
 #######################
 # Setup Control Agent #

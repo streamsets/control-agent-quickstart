@@ -2,9 +2,9 @@
 apiVersion: v1
 kind: Service
 metadata:
-  name: authoring
+  name: ${SCH_DEPLOYMENT_NAME}
   labels:
-    app: authoring-datacollector
+    app: ${SCH_DEPLOYMENT_NAME}
 spec:
   type: NodePort
   ports:
@@ -13,12 +13,12 @@ spec:
     targetPort: 18630
     protocol: TCP
   selector:
-    app: streamsets-datacollector
+    app: ${SCH_DEPLOYMENT_NAME}
 ---
 apiVersion: extensions/v1beta1
 kind: Ingress
 metadata:
-  name: authoring-sdc
+  name: ${SCH_DEPLOYMENT_NAME}
   annotations:
     kubernetes.io/ingress.class: traefik
 spec:
@@ -28,5 +28,5 @@ spec:
       paths:
       - path: /
         backend:
-          serviceName: authoring
+          serviceName: ${SCH_DEPLOYMENT_NAME}
           servicePort: 18635

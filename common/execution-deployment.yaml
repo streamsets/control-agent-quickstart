@@ -8,11 +8,11 @@ spec:
   replicas: ${SDC_REPLICAS}
   selector:
     matchLabels:
-      app: streamsets-datacollector
+      app: ${SCH_DEPLOYMENT_NAME}
   template:
     metadata:
       labels:
-        app : streamsets-datacollector
+        app : ${SCH_DEPLOYMENT_NAME}
     spec:
       containers:
       - name : datacollector

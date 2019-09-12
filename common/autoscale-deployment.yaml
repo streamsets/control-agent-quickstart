@@ -34,7 +34,7 @@ items:
 - apiVersion: autoscaling/v1
   kind: HorizontalPodAutoscaler
   metadata:
-    name: datacollector-hpa
+    name: ${SCH_DEPLOYMENT_NAME}-hpa
     namespace: ${KUBE_NAMESPACE}
   spec:
     scaleTargetRef:
