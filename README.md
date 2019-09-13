@@ -2,23 +2,28 @@
 
 This project provides pre-built scripts to configure Streamsets Control Hub (SCH) to work with various Kubernetes (K8s) providers.  You may use an existing K8s cluster or have the scripts generate a new one.
 
-These configurations are for demonstration purposes only and will require modification for use in a production environment.
+
+## Known Limitations
+
+- The agent and deployment configurations produced by this script are intended for demonstration purposes.  They are not routinely tested against production environment conditions.
+- Kerberos principal and keytab configuration in not currently supported by these scripts
+
 
 ## Deployment Modes
 
 This script can create deployments for the the following use cases:
 
-### AUTHORING (Default)
+#### 1. AUTHORING (Default)
 A single SDC instance with access to the UI via a Public URL.  This configuration includes an ingress server and loadBalancer deployment within K8s.
 
 The details of the loadBalancer implementation will vary depending on the K8s provider you use.  If you are working on a private K8s installation that does not implement a loadBalancer you will not be able to access the UI without modifying this script.
 
-The ingress deployment used Traefik and provides SSL termination. The SSL configuration uses a self-signed certificate.   **Before you can use the SDC instance for pipeline validations and previews from SCH you must click on the Datacollector's link within SCH and accept the self-signed certificate.**
+The ingress deployment used Traefik and provides SSL termination. The SSL configuration uses a self-signed certificate.   **Before you can use the SDC instance for pipeline validations and previews from SCH, you must click on the Datacollector's link within SCH and accept the self-signed certificate.**
 
-### EXECUTION
+#### 2. EXECUTION
 A group of SDC instancs that can be scaled via the SCH Deployments screen.  
 
-These instances are not intended for development or any other activities that require routine access to the SDC UI.  The links displayed on SCH Data Collectors screeen do not work.  They are only intended to document that naem of the pod within the K8s instance.  **Remote access to the SDC UIs possible, but only with K8s port forwarding only.**
+These instances are not intended for development or any other activities that require routine access to the SDC UI.  The links displayed on SCH Data Collectors screeen do not work.  They are only intended to document that naem of the pod within the K8s instance.  **Remote access to the SDC UI is possible, but only with K8s port forwarding only.**
 
 To access the UI for an SDC instance you need to:
 1. Find the name of the instance you want to access via SCH Data Collectors screen or `kubectl get pods` command.
@@ -32,7 +37,7 @@ Forwarding from [::1]:18777 -> 18630`
 3. Open your browser to `localhost:18777`
 
 
-### AUTOSCALE
+#### 3. AUTOSCALE
 Same as EXECUTON mode except the number of SDC instances will be scaled automatically in response to to cpu load.
 
 Scaling is implemented via the K8s HorizontalPodAutoscaler.  This requires a Metric Server deployment in K8s cluster.  The Metric Server is included by default in K8s deployments of cloud providers.  If you are adapting this
