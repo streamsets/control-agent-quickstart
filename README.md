@@ -49,7 +49,9 @@ NOTE: Autocaling is based on the host load as seen by K8s.  This is different th
 
 1. kubectl
 2. jq
-3. k8s metrics server (AUTOSCALE deployments only)
+3. envsubst
+  - Not included by default on MacOS
+4. k8s metrics server (AUTOSCALE deployments only) 
 
 
 *See the individual K8s Provider folders for additional prerequisites.*

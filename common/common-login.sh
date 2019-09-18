@@ -35,6 +35,12 @@ if [ -z "$(which kubectl)" ]; then
   exit 1
 fi
 
+if [ -z "$(which envsubst)" ]; then
+  echo "This script requires the 'envsubst' utility. See:"
+  echo "https://command-not-found.com/envsubt"
+  exit 1
+fi
+
 if [ -z "$SCH_ORG" ]; then
   show_usage
   echo "Please set SCH_ORG to your organization name."
@@ -100,7 +106,7 @@ if [ -z ${SCH_AGENT_NAME+x} ]; then export SCH_AGENT_NAME=${KUBE_CLUSTER_NAME}-p
 export SCH_AGENT_NAME
 
 : ${SCH_DEPLOYMENT_TYPE:=AUTHORING}
-SCH_DEPLOYMENT_TYPE=${SCH_DEPLOYMENT_TYPE^^}  #Convert to Uppercase
+SCH_DEPLOYMENT_TYPE=$(echo "${SCH_DEPLOYMENT_TYPE}" | tr '[:lower:]' '[:upper:]')
 export SCH_DEPLOYMENT_TYPE
 
 if [ -z "${KUBE_NODE_INITIALCOUNT}" ] ; then
