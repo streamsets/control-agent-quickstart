@@ -8,7 +8,6 @@ echo K8S Namespace: ${KUBE_NAMESPACE}
 echo Agent name: ${SCH_AGENT_NAME}
 
 
-fi
 
 #######################
 # Setup Control Agent #
