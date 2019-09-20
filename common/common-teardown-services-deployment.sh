@@ -6,9 +6,11 @@ ${COMMON_DIR}/common-kubectl-connect.sh
 # 1. Stop and Delete deployment if one is active
 echo "Stop and Delete deployment if one is active"
 #TODO Should dynically discover deployment names via REST API based on agent name
+if [ -z ${SCH_DEPLOYMENT_NAME+x} ]; then export SCH_DEPLOYMENT_NAME=${SCH_AGENT_NAME}-deploy01; fi
 
 # Stop deployment
 if [[ -f "deployment-${SCH_DEPLOYMENT_NAME}.id" && -s "deployment-${SCH_DEPLOYMENT_NAME}.id" ]]; then
+  echo Deleting deployment
   deployment_id="`cat deployment-${SCH_DEPLOYMENT_NAME}.id`"
   curl -s -X POST "${SCH_URL}/provisioning/rest/v1/deployment/${deployment_id}/stop" --header "Content-Type:application/json" --header "X-Requested-By:SDC" --header "X-SS-REST-CALL:true" --header "X-SS-User-Auth-Token:${SCH_TOKEN}"
 
