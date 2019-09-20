@@ -105,6 +105,9 @@ export KUBE_CLUSTER_NAME
 if [ -z ${SCH_AGENT_NAME+x} ]; then export SCH_AGENT_NAME=${KUBE_CLUSTER_NAME}-pa01; fi
 export SCH_AGENT_NAME
 
+if [ -z ${SCH_DEPLOYMENT_NAME+x} ]; then export SCH_DEPLOYMENT_NAME=${SCH_AGENT_NAME}-deploy01; fi
+export SCH_DEPLOYMENT_NAME
+
 : ${SCH_DEPLOYMENT_TYPE:=AUTHORING}
 SCH_DEPLOYMENT_TYPE=$(echo "${SCH_DEPLOYMENT_TYPE}" | tr '[:lower:]' '[:upper:]')
 export SCH_DEPLOYMENT_TYPE

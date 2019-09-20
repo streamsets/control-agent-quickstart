@@ -7,8 +7,6 @@ ${COMMON_DIR}/common-kubectl-connect.sh
 # Initialize
 ######################
 
-if [ -z ${SCH_DEPLOYMENT_NAME+x} ]; then export SCH_DEPLOYMENT_NAME=${SCH_AGENT_NAME}-deploy01; fi
-
 agent_id="`cat agent-${SCH_AGENT_NAME}.id`"
 
 echo Agent ID: ${agent_id}
