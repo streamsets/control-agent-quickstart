@@ -6,7 +6,7 @@ defaultEntryPoints = ["http","https"]
     [entryPoints.http.redirect]
       entryPoint = "https"
   [entryPoints.https]
-  address = ":443"
+  address = ":${SCH_DEPLOYMENT_LBPORT}"
     [entryPoints.https.tls]
       [[entryPoints.https.tls.certificates]]
       CertFile = "/ssl/tls.crt"

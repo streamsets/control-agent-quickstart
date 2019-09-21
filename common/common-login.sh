@@ -112,6 +112,9 @@ export SCH_DEPLOYMENT_NAME
 SCH_DEPLOYMENT_TYPE=$(echo "${SCH_DEPLOYMENT_TYPE}" | tr '[:lower:]' '[:upper:]')
 export SCH_DEPLOYMENT_TYPE
 
+: ${SCH_DEPLOYMENT_LBPORT:=443}
+export SCH_DEPLOYMENT_LBPORT
+
 if [ -z "${KUBE_NODE_INITIALCOUNT}" ] ; then
   if [ "${SCH_DEPLOYMENT_TYPE}" == "AUTHORING" ] ; then
     export KUBE_NODE_INITIALCOUNT=1
@@ -119,6 +122,9 @@ if [ -z "${KUBE_NODE_INITIALCOUNT}" ] ; then
     export KUBE_NODE_INITIALCOUNT=3
   fi
 fi
+
+if [ -z ${INGRESS_NAME+x} ]; then export INGRESS_NAME=${SCH_DEPLOYMENT_NAME}-traefik; fi
+export INGRESS_NAME
 
 echo K8S Cluster Name: ${KUBE_CLUSTER_NAME}
 echo K8S Namespace: ${KUBE_NAMESPACE}

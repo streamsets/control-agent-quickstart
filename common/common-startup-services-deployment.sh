@@ -38,18 +38,31 @@ export SDC_DOCKER_TAG
 case "$SCH_DEPLOYMENT_TYPE" in
   AUTHORING)
 
+  # ------------------------------------------------------------------------------------------------------------------------------------
+  #TODO - Ineffecient to create a unique Loadbalancer Service, Ingress, and Ingress-contoller for each deployment.  Options are:
+  #         1) Configure path-based routing in a single ingress-contoller defined at the cluster (or agent) level.
+  #             - Will require SDC support for path-based routes beind a reverse proxy
+  #             - Will need to modify ingressclass pointer in both traefik-dep.yaml and authoring-sdc-svc.yaml
+  #             - Will need to modify the route-path used in deployment.yaml and authoring-sdc-svc.yaml
+  #             - Will need to modify default value for INGRESS_NAME
+  #             - Will need to modify common-teardown-services-deployment.sh
+  #         2) Eliminate Ingress and tie deployment directly to Loadbalncer service
+  #             - This will still require a unique Loadbalncer Service for each deployment
     echo ... create service and ingress for Authoring SDC
     # Create Authoring SDC Service and Ingress
     cat ${COMMON_DIR}/authoring-sdc-svc.yaml | envsubst > ${PWD}/_tmp_authoring-sdc-svc.yaml
     kubectl create -f ${PWD}/_tmp_authoring-sdc-svc.yaml  || { echo 'ERROR: Failed to create service for Authoring instance' ; exit 1; }
 
-    echo ... wait for traefik external ip address
+    ${COMMON_DIR}/common-startup-traefik.sh
+  # ------------------------------------------------------------------------------------------------------------------------------------
+
+    echo "... wait for traefik external ip address (this can take a minute)"
     # Wait for an external endpoint to be assigned
     external_ip=""
     #while [ -z $external_ip ]; do
     while [ 1 ]; do
         #This section is a little messy because some K8s implementations return the address in a field named 'ip' and others in field named 'hostname"
-        ingress=$(kubectl get svc traefik-ingress-service -o json)
+        ingress=$(kubectl get svc ${INGRESS_NAME}-ingress-service -o json)
         ingress_host=$(echo $ingress | jq -r 'select(.status.loadBalancer.ingress != null) | .status.loadBalancer.ingress[].hostname')
         if [ -n "${ingress_host}" -a "${ingress_host}" != "null" ];
         then

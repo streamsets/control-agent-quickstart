@@ -32,4 +32,6 @@ echo ... create service and ingress for Authoring SDC
 cat ${COMMON_DIR}/authoring-sdc-svc.yaml | envsubst > ${PWD}/_tmp_authoring-sdc-svc.yaml
 kubectl delete -f ${PWD}/_tmp_authoring-sdc-svc.yaml
 
+${COMMON_DIR}/common-teardown-traefik.sh
+
 echo Exiting common-teardown-services-deployment.sh on cluster ${KUBE_CLUSTER_NAME}

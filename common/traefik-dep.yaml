@@ -2,32 +2,32 @@
 kind: Deployment
 apiVersion: extensions/v1beta1
 metadata:
-  name: traefik-ingress-controller
+  name: ${INGRESS_NAME}-ingress-controller
   labels:
-    k8s-app: traefik-ingress-lb
+    k8s-app: ${INGRESS_NAME}-ingress-lb
 spec:
   replicas: 1
   selector:
     matchLabels:
-      k8s-app: traefik-ingress-lb
+      k8s-app: ${INGRESS_NAME}-ingress-lb
   template:
     metadata:
       labels:
-        k8s-app: traefik-ingress-lb
-        name: traefik-ingress-lb
+        k8s-app: ${INGRESS_NAME}-ingress-lb
+        name: ${INGRESS_NAME}-ingress-lb
     spec:
-      serviceAccountName: traefik-ingress-controller
+      serviceAccountName: ${INGRESS_NAME}-ingress-controller
       terminationGracePeriodSeconds: 60
       volumes:
       - name: ssl
         secret:
-          secretName: traefik-cert
+          secretName: ${INGRESS_NAME}-cert
       - name: config
         configMap:
-          name: traefik-conf
+          name: ${INGRESS_NAME}-conf
       containers:
-      - image: traefik:1.7
-        name: traefik-ingress-lb
+      - image: traefik:1.7-alpine
+        name: ${INGRESS_NAME}-ingress-lb
         imagePullPolicy: Always
         volumeMounts:
         - mountPath: "/ssl"
@@ -37,23 +37,24 @@ spec:
         args:
         - --web
         - --kubernetes
+        - --kubernetes.ingressclass=traefik-${SCH_DEPLOYMENT_NAME}        
         - --configfile=/config/traefik.toml
         - --logLevel=DEBUG
 ---
 kind: Service
 apiVersion: v1
 metadata:
-  name: traefik-ingress-service
+  name: ${INGRESS_NAME}-ingress-service
 spec:
   type: LoadBalancer
   selector:
-    k8s-app: traefik-ingress-lb
+    k8s-app: ${INGRESS_NAME}-ingress-lb
   ports:
     - protocol: TCP
       port: 80
       name: http
     - protocol: TCP
-      port: 443
+      port: ${SCH_DEPLOYMENT_LBPORT}
       name: https
     - protocol: TCP
       port: 8080

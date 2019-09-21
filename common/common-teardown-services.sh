@@ -24,26 +24,10 @@ i=agent-${SCH_AGENT_NAME}.id
 #echo ... configuring kubectl
 #aws eks --region ${AWS_REGION} update-kubeconfig --name "${KUBE_CLUSTER_NAME}"
 
-# Configure & Delete traefik service
-echo "Deleting traefik ingress controller and service"
-kubectl delete -f ${COMMON_DIR}/traefik-dep.yaml
-
-# Delete traefik configuration to handle https
-echo "Deleting configmap traefik-conf"
-kubectl delete configmap traefik-conf
-
-# Delete the certificate and key file
-echo "... Deleting TLS key"
-kubectl delete secret traefik-cert
-rm -f tls.crt tls.key
-
 #TODO Not necessary if cluster being destroyed
 kubectl delete rolebinding streamsets-agent --namespace=${KUBE_NAMESPACE}
 kubectl delete role streamsets-agent --namespace=${KUBE_NAMESPACE}
 kubectl delete serviceaccount streamsets-agent --namespace=${KUBE_NAMESPACE}
-kubectl delete clusterrolebinding traefik-ingress-controller
-kubectl delete clusterrole traefik-ingress-controller
-kubectl delete serviceaccount traefik-ingress-controller
 kubectl delete clusterrolebinding cluster-admin-binding
 
 #kubectl delete namespace ${KUBE_NAMESPACE}
