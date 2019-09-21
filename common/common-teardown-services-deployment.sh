@@ -10,13 +10,15 @@ echo "Stop and Delete deployment if one is active"
 if [[ -f "deployment-${SCH_DEPLOYMENT_NAME}.id" && -s "deployment-${SCH_DEPLOYMENT_NAME}.id" ]]; then
   echo Deleting deployment
   deployment_id="`cat deployment-${SCH_DEPLOYMENT_NAME}.id`"
-  curl -s -X POST "${SCH_URL}/provisioning/rest/v1/deployment/${deployment_id}/stop" --header "Content-Type:application/json" --header "X-Requested-By:SDC" --header "X-SS-REST-CALL:true" --header "X-SS-User-Auth-Token:${SCH_TOKEN}"
+  deploymentStatus=$(curl -X POST -d "[ \"${deployment_id}\" ]" "${SCH_URL}/provisioning/rest/v1/deployments/status" --header "Content-Type:application/json" --header "X-Requested-By:SDC" --header "X-SS-REST-CALL:true" --header "X-SS-User-Auth-Token:${SCH_TOKEN}" | jq -r 'map(select([])|.status)[]')
 
   # Wait for deployment to become inactive
-  deploymentStatus="ACTIVE"
   while [[ "${deploymentStatus}" != "INACTIVE" ]]; do
     echo "\nCurrent Deployment Status is \"${deploymentStatus}\". Waiting for it to become inactive"
     sleep 10
+    #Clear any pending errors
+    deploymentStatus=$(curl -X POST -d "[ \"${deployment_id}\" ]" "${SCH_URL}/provisioning/rest/v1/deployments/acknowledgeErrors" --header "Content-Type:application/json" --header "X-Requested-By:SDC" --header "X-SS-REST-CALL:true" --header "X-SS-User-Auth-Token:${SCH_TOKEN}" | jq -r 'map(select([])|.status)[]')
+    #Refresh status
     deploymentStatus=$(curl -X POST -d "[ \"${deployment_id}\" ]" "${SCH_URL}/provisioning/rest/v1/deployments/status" --header "Content-Type:application/json" --header "X-Requested-By:SDC" --header "X-SS-REST-CALL:true" --header "X-SS-User-Auth-Token:${SCH_TOKEN}" | jq -r 'map(select([])|.status)[]')
   done
 fi
