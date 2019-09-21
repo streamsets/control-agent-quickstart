@@ -24,7 +24,7 @@ fi
 # Delete deployment
 curl -s -X DELETE "${SCH_URL}/provisioning/rest/v1/deployment/${deployment_id}" --header "Content-Type:application/json" --header "X-Requested-By:SDC" --header "X-SS-REST-CALL:true" --header "X-SS-User-Auth-Token:${SCH_TOKEN}"
 
-rm -f $i
+rm -f deployment-${SCH_DEPLOYMENT_NAME}.id
 
 echo ... create service and ingress for Authoring SDC
 
