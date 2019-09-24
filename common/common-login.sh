@@ -63,8 +63,14 @@ fi
 
 
 : ${SCH_URL:=https://cloud.streamsets.com}
-export SCH_TOKEN=$(curl -s -X POST -d "{\"userName\":\"${SCH_USER}\", \"password\": \"${SCH_PASSWORD}\"}" ${SCH_URL}/security/public-rest/v1/authentication/login --header "Content-Type:application/json" --header "X-Requested-By:SDC" -c - | sed -n '/SS-SSO-LOGIN/p' | perl -lane 'print $F[$#F]')
-
+sch_authentication=$(curl -s -X POST -d "{\"userName\":\"${SCH_USER}\", \"password\": \"${SCH_PASSWORD}\"}" ${SCH_URL}/security/public-rest/v1/authentication/login --header "Content-Type:application/json" --header "X-Requested-By:SDC" -c - )
+ret=$?
+if [ $ret -eq 35 ]; then
+  echo "SSL connect Error. The SSL handshaking failed."
+  echo "Does this SCH instance support HTTPS?"
+  exit 1
+fi
+export SCH_TOKEN=$(echo $sch_authentication | sed -n '/SS-SSO-LOGIN/p' | perl -lane 'print $F[$#F]')
 if [ -z "$SCH_TOKEN" ]; then
   echo "Failed to authenticate with SCH :("
   echo "Please check your username, password, and organization name."
