@@ -1,5 +1,5 @@
 #!/bin/bash
-echo Running common-startup-services-deployment.sh on cluster ${KUBE_CLUSTER_NAME}
+((Sx+=1));export Sx; echo Running common-startup-services-deployment.sh on cluster ${KUBE_CLUSTER_NAME}
 
 ${COMMON_DIR}/common-kubectl-connect.sh
 
@@ -107,4 +107,4 @@ echo ${DEP_ID} > deployment-${SCH_DEPLOYMENT_NAME}.id
 curl -s -X POST "${SCH_URL}/provisioning/rest/v1/deployment/${DEP_ID}/start?dpmAgentId=${agent_id}" --header "Content-Type:application/json" --header "X-Requested-By:SDC" --header "X-SS-REST-CALL:true" --header "X-SS-User-Auth-Token:${SCH_TOKEN}" || { echo 'ERROR: Failed to start deployment in SCH' ; exit 1; }
 echo "Successfully started deployment \"${SCH_DEPLOYMENT_NAME}\" on Agent \"${agent_id}\""
 
-echo Exiting common-startup-services-deployment.sh on cluster ${KUBE_CLUSTER_NAME}
+echo ${Sout:0:Sx} Exiting common-startup-services-deployment.sh on cluster ${KUBE_CLUSTER_NAME} ; ((Sx-=1));export Sx;

@@ -1,5 +1,5 @@
-#!/bin/bash
-echo Running common-teardown-services-agent.sh on cluster ${KUBE_CLUSTER_NAME}
+#!/bin/bash -x
+((Sx+=1));export Sx; echo ${Sin:0:Sx} Running common-teardown-services-agent.sh on cluster ${KUBE_CLUSTER_NAME}
 
 ${COMMON_DIR}/common-kubectl-connect.sh
 
@@ -30,7 +30,6 @@ if [[ -f "agent-${SCH_AGENT_NAME}.id" && -s "agent-${SCH_AGENT_NAME}.id" ]]; the
     curl -s -X DELETE "${SCH_URL}/provisioning/rest/v1/dpmAgent/${agent_id}" --header "Content-Type:application/json" --header "X-Requested-By:SDC" --header "X-SS-REST-CALL:true" --header "X-SS-User-Auth-Token:${SCH_TOKEN}"
     rm -f agent-${SCH_AGENT_NAME}.id
 
-
 else
     echo "File not found: agent-${SCH_AGENT_NAME}.id"
 fi
@@ -53,4 +52,4 @@ kubectl delete configmap ${SCH_AGENT_NAME}-config \
     || { echo 'ERROR: Failed to create configmap in Kubernetes' ; exit 1; }
 
 
-echo Exiting common-teardown-services-agent.sh on cluster ${KUBE_CLUSTER_NAME}
+echo ${Sout:0:Sx} Exiting common-teardown-services-agent.sh on cluster ${KUBE_CLUSTER_NAME} ; ((Sx-=1));export Sx;

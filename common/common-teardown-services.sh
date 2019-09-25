@@ -1,5 +1,5 @@
 #!/bin/bash
-echo Running common-teardown-services.sh on cluster ${KUBE_CLUSTER_NAME}
+((Sx+=1));export Sx; echo ${Sin:0:Sx} Running common-teardown-services.sh on cluster ${KUBE_CLUSTER_NAME}
 
 ${COMMON_DIR}/common-kubectl-connect.sh
 
@@ -33,4 +33,4 @@ kubectl delete clusterrolebinding cluster-admin-binding
 #kubectl delete namespace ${KUBE_NAMESPACE}
 #echo "Deleted Namespace ${KUBE_NAMESPACE}"
 
-echo Exiting common-teardown-services.sh on cluster ${KUBE_CLUSTER_NAME}
+echo ${Sout:0:Sx} Exiting common-teardown-services.sh on cluster ${KUBE_CLUSTER_NAME} ; ((Sx-=1));export Sx;

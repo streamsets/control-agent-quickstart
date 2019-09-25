@@ -1,13 +1,11 @@
 #!/bin/bash
-echo Running common-startup-services-agent.sh on cluster ${KUBE_CLUSTER_NAME}
+((Sx+=1));export Sx; echo ${Sin:0:Sx} Running common-startup-services-agent.sh on cluster ${KUBE_CLUSTER_NAME}
 
 ${COMMON_DIR}/common-kubectl-connect.sh
 
 echo K8S Cluster Name: ${KUBE_CLUSTER_NAME}
 echo K8S Namespace: ${KUBE_NAMESPACE}
 echo Agent name: ${SCH_AGENT_NAME}
-
-
 
 #######################
 # Setup Control Agent #
@@ -72,4 +70,4 @@ echo "DPM Agent \"${temp_agent_Id}\" successfully registered with SCH"
 #######################################
 ${COMMON_DIR}/common-startup-services-deployment.sh 01
 
-echo Exiting common-startup-services-agent.sh on cluster ${KUBE_CLUSTER_NAME}
+echo ${Sout:0:Sx} Exiting common-startup-services-agent.sh on cluster ${KUBE_CLUSTER_NAME} ; ((Sx-=1));export Sx;

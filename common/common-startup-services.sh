@@ -1,5 +1,5 @@
 #!/bin/bash
-echo Running common-startup-services.sh on cluster ${KUBE_CLUSTER_NAME}
+((Sx+=1));export Sx; echo ${Sin:0:Sx} Running common-startup-services.sh on cluster ${KUBE_CLUSTER_NAME}
 
 ${COMMON_DIR}/common-kubectl-connect.sh
 
@@ -29,4 +29,4 @@ kubectl create rolebinding streamsets-agent \
 #######################
 ${COMMON_DIR}/common-startup-services-agent.sh 01
 
-echo Exiting common-startup-services.sh on cluster ${KUBE_CLUSTER_NAME}
+echo ${Sout:0:Sx} Exiting common-startup-services.sh on cluster ${KUBE_CLUSTER_NAME} ; ((Sx-=1));export Sx;

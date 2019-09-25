@@ -1,5 +1,5 @@
-#!/bin/bash
-echo Running common-login.sh
+#!/bin/bash -x
+((Sx+=1));export Sx; echo ${Sin:0:Sx} Running common-login.sh
 
 COMMON_DIR="`dirname \"$0\"`"                 # relative
 if [ -z "$COMMON_DIR" ] ; then
@@ -137,4 +137,7 @@ echo K8S Namespace: ${KUBE_NAMESPACE}
 echo K8S Initial Node Count $KUBE_NODE_INITIALCOUNT
 echo Agent name: ${SCH_AGENT_NAME}
 
-echo Exiting common-login.sh
+export Sin=">>>>>>>>>>>>>>>>>>>>>>>>>>>>>>"
+export Sout="<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<"
+
+echo ${Sout:0:Sx} Exiting common-login.sh ; ((Sx-=1));export Sx;

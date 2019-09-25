@@ -1,5 +1,5 @@
 #!/bin/bash
-echo Running common-teardown-services-deployment.sh on cluster ${KUBE_CLUSTER_NAME}
+((Sx+=1));export Sx; echo ${Sin:0:Sx} Running common-teardown-services-deployment.sh on cluster ${KUBE_CLUSTER_NAME}
 
 ${COMMON_DIR}/common-kubectl-connect.sh
 
@@ -36,4 +36,4 @@ kubectl delete -f ${PWD}/_tmp_authoring-sdc-svc.yaml
 
 ${COMMON_DIR}/common-teardown-traefik.sh
 
-echo Exiting common-teardown-services-deployment.sh on cluster ${KUBE_CLUSTER_NAME}
+echo ${Sout:0:Sx} Exiting common-teardown-services-deployment.sh on cluster ${KUBE_CLUSTER_NAME} ; ((Sx-=1));export Sx;

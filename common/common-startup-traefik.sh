@@ -1,5 +1,5 @@
 #!/bin/bash
-echo Running common-startup-traefik.sh on cluster ${KUBE_CLUSTER_NAME}
+((Sx+=1));export Sx; echo ${Sin:0:Sx} Running common-startup-traefik.sh on cluster ${KUBE_CLUSTER_NAME}
 
 ${COMMON_DIR}/common-kubectl-connect.sh
 
@@ -60,4 +60,4 @@ kubectl create -f ${PWD}/_tmp_traefik-dep.yaml --namespace=${KUBE_NAMESPACE} || 
 #done
 #echo "External Endpoint to Access Authoring SDC : ${external_ip}\n"
 
-echo Exiting common-startup-traefik.sh on cluster ${KUBE_CLUSTER_NAME}
+echo ${Sout:0:Sx} Exiting common-startup-traefik.sh on cluster ${KUBE_CLUSTER_NAME} ; ((Sx-=1));export Sx;
