@@ -41,15 +41,18 @@ echo "Deleted control agent"
 
 # Delete secrets
 echo "... Delete agent secrets"
-kubectl delete secret ${SCH_AGENT_NAME}-creds \
-    || { echo 'ERROR: Failed to delete SCH credentials secret in Kubernetes'; }
-kubectl delete secret ${SCH_AGENT_NAME}-compsecret \
-    || { echo 'ERROR: Failed to delete agent keypair secret in Kubernetes' ; }
+kubectl delete secret ${SCH_AGENT_NAME}-creds
+#\
+#    || { echo 'ERROR: Failed to delete SCH credentials secret in Kubernetes'; }
+kubectl delete secret ${SCH_AGENT_NAME}-compsecret
+#\
+#    || { echo 'ERROR: Failed to delete agent keypair secret in Kubernetes' ; }
 
 # Delete configMap
 echo "... Delete agent configmap"
-kubectl delete configmap ${SCH_AGENT_NAME}-config \
-    || { echo 'ERROR: Failed to create configmap in Kubernetes' ; exit 1; }
+kubectl delete configmap ${SCH_AGENT_NAME}-config
+#\
+#    || { echo 'ERROR: Failed to create configmap in Kubernetes' ; exit 1; }
 
 
 echo ${Sout:0:Sx} Exiting common-teardown-services-agent.sh on cluster ${KUBE_CLUSTER_NAME} ; ((Sx-=1));export Sx;
