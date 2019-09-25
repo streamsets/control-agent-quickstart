@@ -132,6 +132,14 @@ fi
 if [ -z ${INGRESS_NAME+x} ]; then export INGRESS_NAME=${SCH_DEPLOYMENT_NAME}-traefik; fi
 export INGRESS_NAME
 
+if [ ! -z "${SCH_FWRULE_UTIL}" ] ; then
+  echo Firewall Rule management utlity is enabled: ${SCH_FWRULE_UTIL}
+  if [ -z ${SCH_FWRULE_NAME} ]; then
+    echo "Please set SCH_FWRULE_NAME to the name of the Firewall Rule to be managed."
+    exit 1
+  fi
+fi
+
 echo K8S Cluster Name: ${KUBE_CLUSTER_NAME}
 echo K8S Namespace: ${KUBE_NAMESPACE}
 echo K8S Initial Node Count $KUBE_NODE_INITIALCOUNT

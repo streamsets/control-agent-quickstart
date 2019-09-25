@@ -19,6 +19,14 @@ i=agent-${SCH_AGENT_NAME}.id
     ${COMMON_DIR}/common-teardown-services-agent.sh $agentnamesuffix
 #done
 
+if [ ! -z "${SCH_FWRULE_UTIL}" ] ; then
+  #sch_agent_ip="`cat egress-${SCH_AGENT_NAME}-ips.txt`"
+  while read egress_ip; do
+    echo ... calling firewall utility script: ${COMMON_DIR}/${SCH_FWRULE_UTIL} remove ${egress_ip}
+    ${COMMON_DIR}/${SCH_FWRULE_UTIL} remove ${egress_ip} ||  echo "ERROR - Call failed to firewall utility script: ${COMMON_DIR}/${SCH_FWRULE_UTIL}"
+  done <egress-${SCH_AGENT_NAME}-ips.txt
+  rm -f egress-${SCH_AGENT_NAME}-ips.txt
+fi
 
 #echo Deconfigure Kubernetes
 #echo ... configuring kubectl

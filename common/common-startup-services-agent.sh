@@ -55,6 +55,25 @@ cat ${COMMON_DIR}/control-agent.yaml | envsubst > ${PWD}/_tmp_control-agent.yaml
 #cat control-agent.yaml | envsubst | sed -E ':a;N;$!ba;s/\r{0,1}\n/\\n/g' > ${PWD}/_tmp_control-agent.yaml
 kubectl create -f ${PWD}/_tmp_control-agent.yaml || { echo 'ERROR: Failed to launch Streamsets Control Agent in Kubernetes' ; exit 1; }
 
+#if [ ! -z "${SCH_FWRULE_ADDAGENT}" ] ; then
+#  echo "... wait for agent pod to reach running status."
+#  while true ; do
+#    sch_agent_pod_status=$(kubectl get pod -l app=agent -o jsonpath="{.items[0].status.phase}")
+#    if [ "${sch_agent_pod_status}" == "Running" ] ; then
+#      break
+#    fi
+#    echo DEBUG status is ${sch_agent_pod_status}
+#    sleep 5
+#  done
+#
+#  echo "... Getting egress IP of Agent pod."
+#  sch_agent_pod=$(kubectl get pod -l app=agent -o jsonpath="{.items[0].metadata.name}")
+#  kubectl exec -it $sch_agent_pod apk add curl
+#  sch_agent_ip=$(kubectl exec -it $sch_agent_pod curl ifconfig.me)
+#  echo ${sch_agent_ip} >> egress-${SCH_AGENT_NAME}-ips.txt
+#  echo agent ip is ${sch_agent_ip}
+#fi
+
 # 5. wait for agent to be registered with SCH
 echo ... wait for agent to be registered with SCH
 temp_agent_Id=""
