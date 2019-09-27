@@ -48,8 +48,6 @@ kubectl create secret generic ${INGRESS_NAME}-cert \
     --from-file=tls.key \
     || { echo 'ERROR: Failed to create secret for certificate in Kubernetes' ; exit 1; }
 
-echo SCH_DEPLOYMENT_LBPORT ${SCH_DEPLOYMENT_LBPORT}
-
 # 2. Create traefik configuration to handle https
 echo ... create configmap
 cat ${COMMON_DIR}/traefik.toml | envsubst > ${PWD}/_tmp_traefik.toml

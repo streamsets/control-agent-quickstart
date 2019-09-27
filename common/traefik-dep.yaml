@@ -17,7 +17,7 @@ spec:
         name: ${INGRESS_NAME}-ingress-lb
     spec:
       serviceAccountName: ${INGRESS_NAME}-ingress-controller
-      terminationGracePeriodSeconds: 60
+      terminationGracePeriodSeconds: 30
       volumes:
       - name: ssl
         secret:
