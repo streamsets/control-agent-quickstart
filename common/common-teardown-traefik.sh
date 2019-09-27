@@ -17,8 +17,8 @@ echo "... Deleting TLS key"
 kubectl delete secret ${INGRESS_NAME}-cert
 rm -f tls.crt tls.key
 
-kubectl delete clusterrolebinding ${INGRESS_NAME}-ingress-controller
-kubectl delete clusterrole ${INGRESS_NAME}-ingress-controller
+kubectl delete rolebinding ${INGRESS_NAME}-ingress-controller
+kubectl delete role ${INGRESS_NAME}-ingress-controller
 kubectl delete serviceaccount ${INGRESS_NAME}-ingress-controller
 
 echo ${Sout:0:Sx} Exiting common-teardown-traefik.sh on cluster ${KUBE_CLUSTER_NAME} ; ((Sx-=1));export Sx;

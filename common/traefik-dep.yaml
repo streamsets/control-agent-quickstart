@@ -37,7 +37,8 @@ spec:
         args:
         - --web
         - --kubernetes
-        - --kubernetes.ingressclass=traefik-${SCH_DEPLOYMENT_NAME}        
+        - --kubernetes.ingressclass=traefik-${SCH_DEPLOYMENT_NAME}
+        - --kubernetes.namespaces=${KUBE_NAMESPACE}
         - --configfile=/config/traefik.toml
         - --logLevel=DEBUG
 ---

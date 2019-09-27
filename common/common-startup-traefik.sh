@@ -9,16 +9,27 @@ ${COMMON_DIR}/common-kubectl-connect.sh
 echo ... create serviceaccount
 kubectl create serviceaccount ${INGRESS_NAME}-ingress-controller || { echo 'ERROR: Failed to create serviceaccount in Kubernetes' ; exit 1; }
 
-echo ... create clusterrole
-kubectl create clusterrole ${INGRESS_NAME}-ingress-controller \
+#echo ... create clusterrole
+#kubectl create clusterrole ${INGRESS_NAME}-ingress-controller \
+#    --verb=get,list,watch \
+#    --resource=endpoints,ingresses.extensions,services,secrets \
+#    || { echo 'ERROR: Failed to create clusterrole in Kubernetes' ; exit 1; }
+#echo ... create clusterrolebinding
+#kubectl create clusterrolebinding ${INGRESS_NAME}-ingress-controller \
+#    --clusterrole=${INGRESS_NAME}-ingress-controller \
+#    --serviceaccount=${KUBE_NAMESPACE}:${INGRESS_NAME}-ingress-controller \
+#    || { echo 'ERROR: Failed to create clusterrolebinding in Kubernetes' ; exit 1; }
+#echo Running common-startup-services.sh on cluster ${KUBE_CLUSTER_NAME}
+echo ... create role
+kubectl create role ${INGRESS_NAME}-ingress-controller \
     --verb=get,list,watch \
     --resource=endpoints,ingresses.extensions,services,secrets \
-    || { echo 'ERROR: Failed to create clusterrole in Kubernetes' ; exit 1; }
-echo ... create clusterrolebinding
-kubectl create clusterrolebinding ${INGRESS_NAME}-ingress-controller \
-    --clusterrole=${INGRESS_NAME}-ingress-controller \
+    || { echo 'ERROR: Failed to create role in Kubernetes' ; exit 1; }
+echo ... create rolebinding
+kubectl create rolebinding ${INGRESS_NAME}-ingress-controller \
+    --role=${INGRESS_NAME}-ingress-controller \
     --serviceaccount=${KUBE_NAMESPACE}:${INGRESS_NAME}-ingress-controller \
-    || { echo 'ERROR: Failed to create clusterrolebinding in Kubernetes' ; exit 1; }
+    || { echo 'ERROR: Failed to create rolebinding in Kubernetes' ; exit 1; }
 echo Running common-startup-services.sh on cluster ${KUBE_CLUSTER_NAME}
 
 echo Setup ${INGRESS_NAME} Ingress Controller
