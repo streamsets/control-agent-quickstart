@@ -185,6 +185,12 @@ SCH_DEPLOYMENT_LABELS - Command delimted list of lables to be applied to provisi
 SCH_DEPLOYMENT_TYPE - Defines how SDC instances will be used and how the UI will be be exposed.
   - See <a href="#heading-ids">Deployment Modes</a> for more details
 
+INGRESS_PORT_HTTPS - The port on public loadbalancer for accessing the SDC instance via HTTPS.
+  - Default - 80
+  - The HTTP endpoint will redirect all calls to the HTTPS endpoint.
+
+INGRESS_PORT_HTTPS - The port on public loadbalancer for accessing the SDC instance via HTTPS.
+  - Default - 443
 
 DOCKER_USER - User ID for your Docker Hub account
   - Only required if you will be using a customer Docker image stored in a private repository

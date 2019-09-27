@@ -51,10 +51,10 @@ spec:
     k8s-app: ${INGRESS_NAME}-ingress-lb
   ports:
     - protocol: TCP
-      port: 80
+      port: ${INGRESS_PORT_HTTP}
       name: http
     - protocol: TCP
-      port: ${SCH_DEPLOYMENT_LBPORT}
+      port: ${INGRESS_PORT_HTTPS}
       name: https
     - protocol: TCP
       port: 8080
