@@ -102,11 +102,18 @@ export SDC_REPLICAS_CPU_THRESHOLD
 : ${SCH_AGENT_DOCKER_TAG:=latest}
 export SCH_AGENT_DOCKER_TAG
 
+: ${KUBE_CLUSTER_NAME:="streamsets-quickstart"}
+export KUBE_CLUSTER_NAME
+
+if [ -z "${KUBE_CONTEXT_NAME}" ] ; then
+  KUBE_CONTEXT_NAME=${KUBE_CLUSTER_NAME}
+fi
+export KUBE_CONTEXT_NAME
+echo KUBE_CONTEXT_NAME $KUBE_CONTEXT_NAME
+
 : ${KUBE_NAMESPACE:=streamsets}
 export KUBE_NAMESPACE
 
-: ${KUBE_CLUSTER_NAME:="streamsets-quickstart"}
-export KUBE_CLUSTER_NAME
 
 if [ -z ${SCH_AGENT_NAME+x} ]; then export SCH_AGENT_NAME=${KUBE_CLUSTER_NAME}-pa01; fi
 export SCH_AGENT_NAME

@@ -130,6 +130,10 @@ KUBE_DELETE_CLUSTER - Should a new K8s instance be deleted (Teardown only)
 KUBE_CLUSTER_NAME - Name of cluster to be created/used as seen in the EKS web UI
   - Default is "streamsets-quickstart"
 
+KUBE_CONTEXT_NAME - Name of the context to be created in Kubectl's Config file
+  - Default is KUBE_CLUSTER_NAME
+  - If the value is "?", no new context will be created and the scripts will use Kubectl's current context
+
 KUBE_NODE_INITIALCOUNT - The number of nodes the cluster should be created with.  
   - Default is 1 if SCH_DEPLOYMENT_TYPE is set to "AUTHORING".  Otherwise the default is 3.
 
