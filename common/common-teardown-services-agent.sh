@@ -36,21 +36,21 @@ fi
 
 echo "... Delete K8s Pod"
 cat ${COMMON_DIR}/control-agent.yaml | envsubst > ${PWD}/_tmp_control-agent.yaml
-kubectl delete -f ${PWD}/_tmp_control-agent.yaml
+$KUBE_EXEC delete -f ${PWD}/_tmp_control-agent.yaml
 echo "Deleted control agent"
 
 # Delete secrets
 echo "... Delete agent secrets"
-kubectl delete secret ${SCH_AGENT_NAME}-creds
+$KUBE_EXEC delete secret ${SCH_AGENT_NAME}-creds
 #\
 #    || { echo 'ERROR: Failed to delete SCH credentials secret in Kubernetes'; }
-kubectl delete secret ${SCH_AGENT_NAME}-compsecret
+$KUBE_EXEC delete secret ${SCH_AGENT_NAME}-compsecret
 #\
 #    || { echo 'ERROR: Failed to delete agent keypair secret in Kubernetes' ; }
 
 # Delete configMap
 echo "... Delete agent configmap"
-kubectl delete configmap ${SCH_AGENT_NAME}-config
+$KUBE_EXEC delete configmap ${SCH_AGENT_NAME}-config
 #\
 #    || { echo 'ERROR: Failed to create configmap in Kubernetes' ; exit 1; }
 

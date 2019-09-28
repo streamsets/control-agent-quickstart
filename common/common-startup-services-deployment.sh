@@ -1,4 +1,4 @@
-#!/bin/bash
+#!/bin/bash 
 ((Sx+=1));export Sx; echo Running common-startup-services-deployment.sh on cluster ${KUBE_CLUSTER_NAME}
 
 ${COMMON_DIR}/common-kubectl-connect.sh
@@ -23,9 +23,9 @@ echo Create Deployment ${SCH_DEPLOYMENT_NAME} with labels: ${SCH_DEPLOYMENT_LABE
 # Create Secret for Docker credentials (required if private repository)
 if [ ! -z ${DOCKER_USER+x} ];
 then
-  kubectl delete secret dockerstore \
+  $KUBE_EXEC delete secret dockerstore \
   || { echo 'WARNING: Unable to delete Docker credentials.  If this a new provisioning agent this is expected'; }
-  kubectl create secret docker-registry dockerstore --docker-username=${DOCKER_USER} --docker-password=${DOCKER_PASSWORD} --docker-email=${DOCKER_EMAIL} \
+  $KUBE_EXEC create secret docker-registry dockerstore --docker-username=${DOCKER_USER} --docker-password=${DOCKER_PASSWORD} --docker-email=${DOCKER_EMAIL} \
   || { echo 'ERROR: Failed to create secret for Docker credentials in Kubernetes' ; exit 1; }
 fi
 
@@ -51,7 +51,7 @@ case "$SCH_DEPLOYMENT_TYPE" in
     echo ... create service and ingress for Authoring SDC
     # Create Authoring SDC Service and Ingress
     cat ${COMMON_DIR}/authoring-sdc-svc.yaml | envsubst > ${PWD}/_tmp_authoring-sdc-svc.yaml
-    kubectl create -f ${PWD}/_tmp_authoring-sdc-svc.yaml  || { echo 'ERROR: Failed to create service for Authoring instance' ; exit 1; }
+    $KUBE_EXEC create -f ${PWD}/_tmp_authoring-sdc-svc.yaml  || { echo 'ERROR: Failed to create service for Authoring instance' ; exit 1; }
 
     ${COMMON_DIR}/common-startup-traefik.sh
   # ------------------------------------------------------------------------------------------------------------------------------------
@@ -62,7 +62,7 @@ case "$SCH_DEPLOYMENT_TYPE" in
     #while [ -z $external_ip ]; do
     while [ 1 ]; do
         #This section is a little messy because some K8s implementations return the address in a field named 'ip' and others in field named 'hostname"
-        ingress=$(kubectl get svc ${INGRESS_NAME}-ingress-service -o json)
+        ingress=$($KUBE_EXEC get svc ${INGRESS_NAME}-ingress-service -o json)
         ingress_host=$(echo $ingress | jq -r 'select(.status.loadBalancer.ingress != null) | .status.loadBalancer.ingress[].hostname')
         if [ -n "${ingress_host}" -a "${ingress_host}" != "null" ];
         then

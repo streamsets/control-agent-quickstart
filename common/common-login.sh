@@ -28,12 +28,19 @@ if [ -z "$(which jq)" ]; then
   exit 1
 fi
 
-if [ -z "$(which kubectl)" ]; then
-  echo "This script requires the 'kubectl' utility."
+: ${KUBE_EXEC:=kubectl}
+if [ -z "$(which ${KUBE_EXEC})" ]; then
+  echo "ERROR: Unable to find the executable ${KUBE_EXEC}, which is defined by variable KUBE_EXEC, on the PATH."
+  echo "This script requires the 'kubectl' or utility of an equivalent kube."
   echo "Please install it via one of the methods described here:"
   echo "https://kubernetes.io/docs/tasks/tools/install-kubectl/"
   exit 1
 fi
+
+if [ "${KUBE_NAMESPACE}" != "?" ] ; then
+  KUBE_EXEC="${KUBE_EXEC} --namespace=${KUBE_NAMESPACE}"
+fi
+export KUBE_EXEC
 
 if [ -z "$(which envsubst)" ]; then
   echo "This script requires the 'envsubst' utility. See:"
@@ -113,7 +120,6 @@ echo KUBE_CONTEXT_NAME $KUBE_CONTEXT_NAME
 
 : ${KUBE_NAMESPACE:=streamsets}
 export KUBE_NAMESPACE
-
 
 if [ -z ${SCH_AGENT_NAME+x} ]; then export SCH_AGENT_NAME=${KUBE_CLUSTER_NAME}-pa01; fi
 export SCH_AGENT_NAME

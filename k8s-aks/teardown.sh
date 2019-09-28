@@ -5,9 +5,9 @@ source login.sh
 
 ${COMMON_DIR}/common-teardown-services.sh
 
-if [ -n "$KUBE_DELETE_CLUSTER" ]; then
+if [ "$KUBE_DELETE_CLUSTER" == "1" ]; then
   echo Destorying K8s Cluster
-  az group delete --name ${AZURE_RESOURCE_GROUP} --yes
+  az group delete --name ${AZURE_RESOURCE_GROUP} --yes --verbose
   #--no-wait
 fi
 

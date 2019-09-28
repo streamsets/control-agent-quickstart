@@ -11,7 +11,7 @@ ${COMMON_DIR}/common-kubectl-connect.sh
 if [ ! -z "${SCH_FWRULE_UTIL}" ] ; then
   echo Adding Nodes to SCH Firewall
   #TODO - This may only work for AWS
-  nodeEgressIPs=$(kubectl get nodes -o jsonpath="{.items[*].status.addresses[?(@.type=='ExternalIP')].address}")
+  nodeEgressIPs=$($KUBE_EXEC get nodes -o jsonpath="{.items[*].status.addresses[?(@.type=='ExternalIP')].address}")
   for egressIP in $nodeEgressIPs ; do
     echo "$egressIP" >> egress-${SCH_AGENT_NAME}-ips.txt
     echo Node ip is ${egressIP}
@@ -26,15 +26,15 @@ fi
 
 echo Setup Agent Service
 echo ... create service acount
-kubectl create serviceaccount streamsets-agent || { echo 'ERROR: Failed to create serviceaccount in Kubernetes' ; exit 1; }
+$KUBE_EXEC create serviceaccount streamsets-agent || { echo 'ERROR: Failed to create serviceaccount in Kubernetes' ; exit 1; }
 
 echo ... create role
-kubectl create role streamsets-agent \
+$KUBE_EXEC create role streamsets-agent \
     --verb=get,list,create,update,delete,patch \
     --resource=pods,secrets,ingresses,services,horizontalpodautoscalers,replicasets.apps,deployments.apps,replicasets.extensions,deployments.extensions \
     || { echo 'ERROR: Failed to create role in Kubernetes' ; exit 1; }
 echo ... create rolebining
-kubectl create rolebinding streamsets-agent \
+$KUBE_EXEC create rolebinding streamsets-agent \
     --role=streamsets-agent \
     --serviceaccount=${KUBE_NAMESPACE}:streamsets-agent \
     || { echo 'ERROR: Failed to create rolebinding in Kubernetes' ; exit 1; }

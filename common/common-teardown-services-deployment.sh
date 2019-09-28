@@ -35,7 +35,7 @@ echo ... create service and ingress for Authoring SDC
 
 #Deleting Authoring SDC Service and Ingress
 cat ${COMMON_DIR}/authoring-sdc-svc.yaml | envsubst > ${PWD}/_tmp_authoring-sdc-svc.yaml
-kubectl delete -f ${PWD}/_tmp_authoring-sdc-svc.yaml
+$KUBE_EXEC delete -f ${PWD}/_tmp_authoring-sdc-svc.yaml
 
 ${COMMON_DIR}/common-teardown-traefik.sh
 

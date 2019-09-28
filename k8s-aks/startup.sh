@@ -5,7 +5,7 @@ source login.sh
 # Create AKS Cluster #
 ######################
 
- if [ -n "${KUBE_CREATE_CLUSTER}" ]; then
+if [ "$KUBE_CREATE_CLUSTER" == "1" ]; then
   echo Creating K8s Cluster
   # if set, this will also attempt to run the az aks command to provision a cluster
   # create a resource group
@@ -22,7 +22,9 @@ fi
 echo Configuring kubectl
 az aks get-credentials --resource-group ${AZURE_RESOURCE_GROUP} --name ${KUBE_CLUSTER_NAME}
 # Set the namespace
-kubectl create namespace ${KUBE_NAMESPACE}
-kubectl config set-context $(kubectl config current-context) --namespace=${KUBE_NAMESPACE}
+if [ "${KUBE_NAMESPACE}" != "?" ] ; then
+  $KUBE_EXEC create namespace ${KUBE_NAMESPACE}
+  kubectl config set-context ${KUBE_CLUSTER_NAME} --namespace=${KUBE_NAMESPACE}
+fi
 
 ${COMMON_DIR}/common-startup-services.sh

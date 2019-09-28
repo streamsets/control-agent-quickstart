@@ -29,20 +29,20 @@ else
   echo "   Agent token successfully retrieved"
 fi
 echo ... Create secret from agent token
-kubectl create secret generic ${SCH_AGENT_NAME}-creds \
+$KUBE_EXEC create secret generic ${SCH_AGENT_NAME}-creds \
     --from-literal=dpm_agent_token_string=${AGENT_TOKEN} \
     || { echo 'ERROR: Failed to create SCH credentials secret in Kubernetes' ; exit 1; }
 
 # 2. Create secret for agent to store key pair
 echo ... Create secret for agent to store key pair
-kubectl create secret generic ${SCH_AGENT_NAME}-compsecret \
+$KUBE_EXEC create secret generic ${SCH_AGENT_NAME}-compsecret \
 || { echo 'ERROR: Failed to create agent keypair secret in Kubernetes' ; exit 1; }
 
 # 3. Create config map to store configuration referenced by the agent yaml
 echo ... Create config map to store configuration referenced by the agent yaml
 agent_id=$(uuidgen)
 echo ${agent_id} > agent-${SCH_AGENT_NAME}.id
-kubectl create configmap ${SCH_AGENT_NAME}-config \
+$KUBE_EXEC create configmap ${SCH_AGENT_NAME}-config \
     --from-literal=org=${SCH_ORG} \
     --from-literal=sch_url=${SCH_URL} \
     --from-literal=agent_id=${agent_id} \
@@ -53,12 +53,12 @@ echo ... Launch Agent
 cat ${COMMON_DIR}/control-agent.yaml | envsubst > ${PWD}/_tmp_control-agent.yaml
 #exit
 #cat control-agent.yaml | envsubst | sed -E ':a;N;$!ba;s/\r{0,1}\n/\\n/g' > ${PWD}/_tmp_control-agent.yaml
-kubectl create -f ${PWD}/_tmp_control-agent.yaml || { echo 'ERROR: Failed to launch Streamsets Control Agent in Kubernetes' ; exit 1; }
+$KUBE_EXEC create -f ${PWD}/_tmp_control-agent.yaml || { echo 'ERROR: Failed to launch Streamsets Control Agent in Kubernetes' ; exit 1; }
 
 #if [ ! -z "${SCH_FWRULE_ADDAGENT}" ] ; then
 #  echo "... wait for agent pod to reach running status."
 #  while true ; do
-#    sch_agent_pod_status=$(kubectl get pod -l app=agent -o jsonpath="{.items[0].status.phase}")
+#    sch_agent_pod_status=$($KUBE_EXEC get pod -l app=agent -o jsonpath="{.items[0].status.phase}")
 #    if [ "${sch_agent_pod_status}" == "Running" ] ; then
 #      break
 #    fi
@@ -67,9 +67,9 @@ kubectl create -f ${PWD}/_tmp_control-agent.yaml || { echo 'ERROR: Failed to lau
 #  done
 #
 #  echo "... Getting egress IP of Agent pod."
-#  sch_agent_pod=$(kubectl get pod -l app=agent -o jsonpath="{.items[0].metadata.name}")
-#  kubectl exec -it $sch_agent_pod apk add curl
-#  sch_agent_ip=$(kubectl exec -it $sch_agent_pod curl ifconfig.me)
+#  sch_agent_pod=$($KUBE_EXEC get pod -l app=agent -o jsonpath="{.items[0].metadata.name}")
+#  $KUBE_EXEC exec -it $sch_agent_pod apk add curl
+#  sch_agent_ip=$($KUBE_EXEC exec -it $sch_agent_pod curl ifconfig.me)
 #  echo ${sch_agent_ip} >> egress-${SCH_AGENT_NAME}-ips.txt
 #  echo agent ip is ${sch_agent_ip}
 #fi

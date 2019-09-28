@@ -117,7 +117,9 @@ SCH_PASSWORD - SCH Password
 
 SCH_URL - URL of SCH instance.  Default is "https://cloud.streamsets.com"
 
-KUBE_NAMESPACE - namespace to be created/used in K8s.  Default "streamsets"
+KUBE_NAMESPACE - namespace to be created/used in K8s.  
+  - Default is "streamsets"
+  - If the value is "?", no new context will be created and the scripts will use Kubectl's current context
 
 KUBE_CREATE_CLUSTER - Should a new K8s instance be created (Startup only)
   - Set (any value) = true
@@ -145,6 +147,8 @@ KUBE_PROVIDER_MACHINETYPE = Type of machine to be used for nodes when the cluste
   - Value will be cloud provider specific.  
   - See README for specific cloud provider for default value.
 
+KUBE_EXEC - The name of the Kubernetes management cli utility to be used.
+  - Default kubectl
 
 SDC_DOCKER_IMAGE - The Name of the Docker iamge to be used.
   - Default is "streamsets/datacollector"
