@@ -33,9 +33,9 @@ fi
 #aws eks --region ${AWS_REGION} update-kubeconfig --name "${KUBE_CLUSTER_NAME}"
 
 #TODO Not necessary if cluster being destroyed
-kubectl delete rolebinding streamsets-agent --namespace=${KUBE_NAMESPACE}
-kubectl delete role streamsets-agent --namespace=${KUBE_NAMESPACE}
-kubectl delete serviceaccount streamsets-agent --namespace=${KUBE_NAMESPACE}
+kubectl delete rolebinding streamsets-agent
+kubectl delete role streamsets-agent
+kubectl delete serviceaccount streamsets-agent
 kubectl delete clusterrolebinding cluster-admin-binding
 
 #kubectl delete namespace ${KUBE_NAMESPACE}

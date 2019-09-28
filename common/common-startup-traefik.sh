@@ -57,7 +57,7 @@ kubectl create configmap ${INGRESS_NAME}-conf --from-file=traefik.toml=${PWD}/_t
 #TODO We just need to wait for loadBalancer.  IP not needed write now.  EKS does not provide ip address and will resolve to null anyway.
 echo ... create traefik service
 cat ${COMMON_DIR}/traefik-dep.yaml | envsubst > ${PWD}/_tmp_traefik-dep.yaml
-kubectl create -f ${PWD}/_tmp_traefik-dep.yaml --namespace=${KUBE_NAMESPACE} || { echo 'ERROR: Failed to traefik service in Kubernetes' ; exit 1; }
+kubectl create -f ${PWD}/_tmp_traefik-dep.yaml || { echo 'ERROR: Failed to traefik service in Kubernetes' ; exit 1; }
 
 # 4. Wait for an external endpoint to be assigned
 #echo ... wait for traefik external ip address
