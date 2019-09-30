@@ -1,5 +1,10 @@
 #!/bin/bash
 ((Sx+=1));export Sx; echo ${Sin:0:Sx} Running gcp-firewall-manager.sh
+# ==============================================================================
+# GCP Firewall Manger
+# ------------------
+# This script upadtes adds and removes IP addresss from a GCP firewall rule.
+# ==============================================================================
 
 # Print usage
 usage() {
@@ -11,45 +16,51 @@ usage() {
           add               Create K8s cluster and create configuration in SCH
           remove            Create configuration in SCH
 
+        IP: Comma delimted list of IP addresses to be processed
+
 "
 }
-
-echo debug parameters $@
 
 if [ $# -eq 0 ] ; then
     echo "ERROR - Must supply an action."; usage ; exit 1
 else
-      FIREWALL_ACTION=$1;shift
+      firewall_action=$1;shift
 fi
 
 if [ $# -eq 0 ] ; then
     echo "ERROR - Must supply an IP address."; usage ; exit 1
 else
-    IPADRESS=$1;shift
+    ipaddress=$1;shift
 fi
 
-case $FIREWALL_ACTION in
+case $firewall_action in
+
   add)
-
-    echo ... Adding external IP to SCH firewall
+    echo "Adding external IP(s) to SCH firewall"
 
     sch_fwrule_sourcranges=$(gcloud compute firewall-rules describe  ${SCH_FWRULE_NAME} --format='value[](sourceRanges)')
     sch_fwrule_sourcranges=${sch_fwrule_sourcranges//;/,}
-    gcloud compute firewall-rules update ${SCH_FWRULE_NAME} --source-ranges=${sch_fwrule_sourcranges},${IPADRESS}
+    gcloud compute firewall-rules update ${SCH_FWRULE_NAME} --source-ranges=${sch_fwrule_sourcranges},${ipaddress}
     ;;
+
   remove)
-    echo ... Removing external IP from SCH firewall
+    echo "Removing IP(s)s from SCH firewall"
+    #Get Array w/ current cource IPs from Firewall rule
     sch_fwrule_sourcranges=$(gcloud compute firewall-rules describe  ${SCH_FWRULE_NAME} --format='value[](sourceRanges)')
-    IFS=';' ; sch_fwrule_sourcranges_array=($sch_fwrule_sourcranges)
-    ipaddress_array=(${IPADRESS})
-    sch_fwrule_sourcranges_array=( "${sch_fwrule_sourcranges_array[@]/$ipaddress_array}" )
+    $(IFS=';' ; sch_fwrule_sourcranges_array=($sch_fwrule_sourcranges))
+
+    for i in ${ipaddress//,/ }
+    do
+      echo "... Removing $i"
+      sch_fwrule_sourcranges_array=( "${sch_fwrule_sourcranges_array[@]/$i}" )
+    done
+
     sch_fwrule_sourcranges=$(IFS=, ; echo "${sch_fwrule_sourcranges_array[*]}")
-    sch_fwrule_sourcranges=${sch_fwrule_sourcranges//;/,}
-    sch_fwrule_sourcranges=${sch_fwrule_sourcranges//,,/,}
     gcloud compute firewall-rules update ${SCH_FWRULE_NAME} --source-ranges=${sch_fwrule_sourcranges}
     ;;
+
   *)
-    echo "ERROR - Invalid action: '${FIREWALL_ACTION}'"; usage ; exit 1 ;;
+    echo "ERROR - Invalid action: '${firewall_action}'"; usage ; exit 1 ;;
 
 esac
 

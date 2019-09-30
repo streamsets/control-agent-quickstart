@@ -10,18 +10,15 @@ ${COMMON_DIR}/common-kubectl-connect.sh
 # Update SCF Firewall (if any)
 if [ ! -z "${SCH_FWRULE_UTIL}" ] ; then
   echo Adding Nodes to SCH Firewall
-  #TODO - This may only work for AWS
   nodeEgressIPs=$($KUBE_EXEC get nodes -o jsonpath="{.items[*].status.addresses[?(@.type=='ExternalIP')].address}")
   for egressIP in $nodeEgressIPs ; do
     echo "$egressIP" >> egress-${SCH_AGENT_NAME}-ips.txt
     echo Node ip is ${egressIP}
   done
 
-  while read egress_ip; do
-    echo "$p"
-    echo Calling firewall utility script: ${COMMON_DIR}/${SCH_FWRULE_UTIL} add ${egress_ip}
-    ${COMMON_DIR}/${SCH_FWRULE_UTIL} add ${egress_ip} ||  echo "ERROR - Call failed to firewall utility script: ${COMMON_DIR}/${SCH_FWRULE_UTIL}"
-  done <egress-${SCH_AGENT_NAME}-ips.txt
+  echo nodeEgressIPs comma delimted ${nodeEgressIPs[*]// /,}
+  echo Calling firewall utility script: ${COMMON_DIR}/${SCH_FWRULE_UTIL} add "${nodeEgressIPs[*]// /,}"
+  ${COMMON_DIR}/${SCH_FWRULE_UTIL} add ${nodeEgressIPs[*]// /,} ||  echo "ERROR - Call failed to firewall utility script: ${COMMON_DIR}/${SCH_FWRULE_UTIL}"
 fi
 
 echo Setup Agent Service
