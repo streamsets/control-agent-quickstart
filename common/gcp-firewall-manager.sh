@@ -1,4 +1,4 @@
-#!/bin/bash -x
+#!/bin/bash
 ((Sx+=1));export Sx; echo ${Sin:0:Sx} Running gcp-firewall-manager.sh
 
 # Print usage

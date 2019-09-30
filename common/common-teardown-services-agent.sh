@@ -1,4 +1,4 @@
-#!/bin/bash -x
+#!/bin/bash
 ((Sx+=1));export Sx; echo ${Sin:0:Sx} Running common-teardown-services-agent.sh on cluster ${KUBE_CLUSTER_NAME}
 
 ${COMMON_DIR}/common-kubectl-connect.sh
