@@ -12,7 +12,7 @@ if [ ! -z "${SCH_FWRULE_UTIL}" ] ; then
   echo Adding Nodes to SCH Firewall
   nodeEgressIPs=$($KUBE_EXEC get nodes -o jsonpath="{.items[*].status.addresses[?(@.type=='ExternalIP')].address}")
   for egressIP in $nodeEgressIPs ; do
-    echo "$egressIP" >> egress-${SCH_AGENT_NAME}-ips.txt
+    echo "$egressIP" >> ${KUBE_CLUSTER_NAME}-egress-ips.txt
     echo Node ip is ${egressIP}
   done
 

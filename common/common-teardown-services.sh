@@ -11,7 +11,7 @@ ${COMMON_DIR}/common-teardown-services-agent.sh
 
 
 if [ ! -z "${SCH_FWRULE_UTIL}" ] ; then
-  ipfile="egress-${SCH_AGENT_NAME}-ips.txt"
+  ipfile="${KUBE_CLUSTER_NAME}-egress-ips.txt"
   if [ -f "${ipfile}" ]; then
     egress_ips=""
     while read egress_ip; do
