@@ -7,7 +7,7 @@ ${COMMON_DIR}/common-kubectl-connect.sh
 # Setup Service Account with roles to read required kubernetes objects #
 ########################################################################
 
-# Update SCF Firewall (if any)
+# Update SCH Firewall (if any)
 if [ ! -z "${SCH_FWRULE_UTIL}" ] ; then
   echo Adding Nodes to SCH Firewall
   nodeEgressIPs=$($KUBE_EXEC get nodes -o jsonpath="{.items[*].status.addresses[?(@.type=='ExternalIP')].address}")
@@ -20,21 +20,6 @@ if [ ! -z "${SCH_FWRULE_UTIL}" ] ; then
   echo Calling firewall utility script: ${COMMON_DIR}/${SCH_FWRULE_UTIL} add "${nodeEgressIPs[*]// /,}"
   ${COMMON_DIR}/${SCH_FWRULE_UTIL} add ${nodeEgressIPs[*]// /,} ||  echo "ERROR - Call failed to firewall utility script: ${COMMON_DIR}/${SCH_FWRULE_UTIL}"
 fi
-
-echo Setup Agent Service
-echo ... create service acount
-$KUBE_EXEC create serviceaccount streamsets-agent || { echo 'ERROR: Failed to create serviceaccount in Kubernetes' ; exit 1; }
-
-echo ... create role
-$KUBE_EXEC create role streamsets-agent \
-    --verb=get,list,create,update,delete,patch \
-    --resource=pods,secrets,ingresses,services,horizontalpodautoscalers,replicasets.apps,deployments.apps,replicasets.extensions,deployments.extensions \
-    || { echo 'ERROR: Failed to create role in Kubernetes' ; exit 1; }
-echo ... create rolebining
-$KUBE_EXEC create rolebinding streamsets-agent \
-    --role=streamsets-agent \
-    --serviceaccount=${KUBE_NAMESPACE}:streamsets-agent \
-    || { echo 'ERROR: Failed to create rolebinding in Kubernetes' ; exit 1; }
 
 #######################
 # Setup Control Agent #

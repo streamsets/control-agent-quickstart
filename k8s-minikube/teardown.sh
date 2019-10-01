@@ -45,11 +45,9 @@ echo "Deleted control agent"
 kubectl delete secret compsecret sch-agent-creds
 echo "Deleted secret sch-agent-creds"
 
-kubectl delete rolebinding streamsets-agent --namespace=${KUBE_NAMESPACE}
-kubectl delete role streamsets-agent --namespace=${KUBE_NAMESPACE}
-kubectl delete serviceaccount streamsets-agent --namespace=${KUBE_NAMESPACE}
+kubectl delete rolebinding ${SCH_AGENT_NAME}-serviceaccount
+kubectl delete role ${SCH_AGENT_NAME}-serviceaccount
+kubectl delete serviceaccount ${SCH_AGENT_NAME}-serviceaccount
 
 kubectl delete namespace ${KUBE_NAMESPACE}
 echo "Deleted Namespace ${KUBE_NAMESPACE}"
-
-

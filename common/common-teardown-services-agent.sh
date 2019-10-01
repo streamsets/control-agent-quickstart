@@ -42,17 +42,15 @@ echo "Deleted control agent"
 # Delete secrets
 echo "... Delete agent secrets"
 $KUBE_EXEC delete secret ${SCH_AGENT_NAME}-creds
-#\
-#    || { echo 'ERROR: Failed to delete SCH credentials secret in Kubernetes'; }
 $KUBE_EXEC delete secret ${SCH_AGENT_NAME}-compsecret
-#\
-#    || { echo 'ERROR: Failed to delete agent keypair secret in Kubernetes' ; }
 
 # Delete configMap
 echo "... Delete agent configmap"
 $KUBE_EXEC delete configmap ${SCH_AGENT_NAME}-config
-#\
-#    || { echo 'ERROR: Failed to create configmap in Kubernetes' ; exit 1; }
 
+echo "... Delete service account and role"
+$KUBE_EXEC delete rolebinding ${SCH_AGENT_NAME}-rolebinding
+$KUBE_EXEC delete role ${SCH_AGENT_NAME}-role
+$KUBE_EXEC delete serviceaccount ${SCH_AGENT_NAME}-serviceaccount
 
 echo ${Sout:0:Sx} Exiting common-teardown-services-agent.sh on cluster ${KUBE_CLUSTER_NAME} ; ((Sx-=1));export Sx;

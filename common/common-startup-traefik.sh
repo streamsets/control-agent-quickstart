@@ -9,17 +9,6 @@ ${COMMON_DIR}/common-kubectl-connect.sh
 echo ... create serviceaccount
 $KUBE_EXEC create serviceaccount ${INGRESS_NAME}-ingress-controller || { echo 'ERROR: Failed to create serviceaccount in Kubernetes' ; exit 1; }
 
-#echo ... create clusterrole
-#$KUBE_EXEC create clusterrole ${INGRESS_NAME}-ingress-controller \
-#    --verb=get,list,watch \
-#    --resource=endpoints,ingresses.extensions,services,secrets \
-#    || { echo 'ERROR: Failed to create clusterrole in Kubernetes' ; exit 1; }
-#echo ... create clusterrolebinding
-#$KUBE_EXEC create clusterrolebinding ${INGRESS_NAME}-ingress-controller \
-#    --clusterrole=${INGRESS_NAME}-ingress-controller \
-#    --serviceaccount=${KUBE_NAMESPACE}:${INGRESS_NAME}-ingress-controller \
-#    || { echo 'ERROR: Failed to create clusterrolebinding in Kubernetes' ; exit 1; }
-#echo Running common-startup-services.sh on cluster ${KUBE_CLUSTER_NAME}
 echo ... create role
 $KUBE_EXEC create role ${INGRESS_NAME}-ingress-controller \
     --verb=get,list,watch \
@@ -28,7 +17,7 @@ $KUBE_EXEC create role ${INGRESS_NAME}-ingress-controller \
 echo ... create rolebinding
 $KUBE_EXEC create rolebinding ${INGRESS_NAME}-ingress-controller \
     --role=${INGRESS_NAME}-ingress-controller \
-    --serviceaccount=${KUBE_NAMESPACE}:${INGRESS_NAME}-ingress-controller \
+    --serviceaccount=${KUBE_NAMESPACE_ACTUAL}:${INGRESS_NAME}-ingress-controller \
     || { echo 'ERROR: Failed to create rolebinding in Kubernetes' ; exit 1; }
 echo Running common-startup-services.sh on cluster ${KUBE_CLUSTER_NAME}
 

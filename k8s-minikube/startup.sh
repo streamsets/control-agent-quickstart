@@ -13,17 +13,15 @@ kubectl create clusterrolebinding cluster-admin-binding \
     --clusterrole=cluster-admin \
     --user="$KUBE_USERNAME"
 
-kubectl create serviceaccount streamsets-agent --namespace=${KUBE_NAMESPACE}
+kubectl create serviceaccount ${SCH_AGENT_NAME}-serviceaccount
 
-kubectl create role streamsets-agent \
+kubectl create role ${SCH_AGENT_NAME}-serviceaccount \
     --verb=get,list,create,update,delete \
     --resource=pods,secrets,deployments \
-    --namespace=${KUBE_NAMESPACE}
 
-kubectl create rolebinding streamsets-agent \
-    --role=streamsets-agent \
-    --serviceaccount=${KUBE_NAMESPACE}:streamsets-agent \
-    --namespace=${KUBE_NAMESPACE}
+kubectl create rolebinding ${SCH_AGENT_NAME}-serviceaccount \
+    --role=${SCH_AGENT_NAME}-serviceaccount \
+    --serviceaccount=${KUBE_NAMESPACE_ACTUAL}:${SCH_AGENT_NAME}-serviceaccount \
 
 
 
@@ -65,4 +63,3 @@ while [ -z $temp_agent_Id ]; do
   temp_agent_Id=$(curl -L "${SCH_URL}/provisioning/rest/v1/dpmAgents?organization=${SCH_ORG}" --header "Content-Type:application/json" --header "X-Requested-By:SDC" --header "X-SS-REST-CALL:true" --header "X-SS-User-Auth-Token:${SCH_TOKEN}" | jq -r "map(select(any(.id; contains(\"${agent_id}\")))|.id)[]")
 done
 echo "DPM Agent \"${temp_agent_Id}\" successfully registered with SCH"
-

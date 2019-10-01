@@ -12,7 +12,7 @@ spec:
       labels:
         app: agent
     spec:
-      serviceAccountName: streamsets-agent
+      serviceAccountName: ${SCH_AGENT_NAME}-serviceaccount
       containers:
       - name: ${SCH_AGENT_NAME}
         image: streamsets/control-agent:${SCH_AGENT_DOCKER_TAG}

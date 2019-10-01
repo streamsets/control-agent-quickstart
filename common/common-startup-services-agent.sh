@@ -12,6 +12,20 @@ echo Agent name: ${SCH_AGENT_NAME}
 #######################
 echo Setup Control Agent
 
+echo ... create service acount
+$KUBE_EXEC create serviceaccount ${SCH_AGENT_NAME}-serviceaccount || { echo 'ERROR: Failed to create serviceaccount in Kubernetes' ; exit 1; }
+
+echo ... create role
+$KUBE_EXEC create role ${SCH_AGENT_NAME}-role \
+    --verb=get,list,create,update,delete,patch \
+    --resource=pods,secrets,ingresses,services,horizontalpodautoscalers,replicasets.apps,deployments.apps,replicasets.extensions,deployments.extensions \
+    || { echo 'ERROR: Failed to create role in Kubernetes' ; exit 1; }
+echo ... create rolebining
+$KUBE_EXEC create rolebinding ${SCH_AGENT_NAME}-rolebinding \
+    --role=${SCH_AGENT_NAME}-role \
+    --serviceaccount=${KUBE_NAMESPACE_ACTUAL}:${SCH_AGENT_NAME}-serviceaccount \
+    || { echo 'ERROR: Failed to create rolebinding in Kubernetes' ; exit 1; }
+
 # 1. Get a token for Agent from SCH and store it in a secret
 echo ... Get a token for Agent from SCH and store it in a secret
 AGENT_TOKEN_CURL=$(curl -s -X PUT -d "{\"organization\": \"${SCH_ORG}\", \"componentType\" : \"provisioning-agent\", \"numberOfComponents\" : 1, \"active\" : true}" ${SCH_URL}/security/rest/v1/organization/${SCH_ORG}/components --header "Content-Type:application/json" --header "X-Requested-By:SDC" --header "X-SS-REST-CALL:true" --header "X-SS-User-Auth-Token:${SCH_TOKEN}")

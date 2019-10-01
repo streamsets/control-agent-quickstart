@@ -33,9 +33,6 @@ if [ ! -z "${SCH_FWRULE_UTIL}" ] ; then
 
 fi
 
-$KUBE_EXEC delete rolebinding streamsets-agent
-$KUBE_EXEC delete role streamsets-agent
-$KUBE_EXEC delete serviceaccount streamsets-agent
 $KUBE_EXEC delete clusterrolebinding cluster-admin-binding
 
 echo ${Sout:0:Sx} Exiting common-teardown-services.sh on cluster ${KUBE_CLUSTER_NAME} ; ((Sx-=1));export Sx;
