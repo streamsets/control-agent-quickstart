@@ -22,7 +22,7 @@ if [ ! -z "${SCH_FWRULE_UTIL}" ] ; then
     if [ ! -z "${egress_ips}" ]; then
       egress_ip=${egress_ips::-1}
       echo ... calling firewall utility script: ${COMMON_DIR}/${SCH_FWRULE_UTIL} remove ${egress_ips}
-      ${COMMON_DIR}/${SCH_FWRULE_UTIL} remove ${egress_ips} ||  echo "ERROR - Call failed to firewall utility script: ${COMMON_DIR}/${SCH_FWRULE_UTIL}"
+      ${COMMON_DIR}/${SCH_FWRULE_UTIL} remove ${egress_ips} ||  { echo "ERROR - Call failed to firewall utility script: ${COMMON_DIR}/${SCH_FWRULE_UTIL}" ; exit 1; }
     else
       echo -e "\e[33mWARNING: File ${ipfile} was empty.  Will not remove node addresses from Firewall rule.  You may need to remove them manually.\e[0m"
     fi

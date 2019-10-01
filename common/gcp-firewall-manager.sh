@@ -45,17 +45,26 @@ case $firewall_action in
 
   remove)
     echo "Removing IP(s)s from SCH firewall"
+
     #Get Array w/ current cource IPs from Firewall rule
     sch_fwrule_sourcranges=$(gcloud compute firewall-rules describe  ${SCH_FWRULE_NAME} --format='value[](sourceRanges)')
-    $(IFS=';' ; sch_fwrule_sourcranges_array=($sch_fwrule_sourcranges))
+    sch_fwrule_sourcranges_array=(${sch_fwrule_sourcranges//;/ })
 
     for i in ${ipaddress//,/ }
     do
       echo "... Removing $i"
-      sch_fwrule_sourcranges_array=( "${sch_fwrule_sourcranges_array[@]/$i}" )
+      sch_fwrule_sourcranges_array=( "${sch_fwrule_sourcranges_array[@]/$i}" ) # Find address in array and change it to Null
     done
 
-    sch_fwrule_sourcranges=$(IFS=, ; echo "${sch_fwrule_sourcranges_array[*]}")
+    sch_fwrule_sourcranges_array=(${sch_fwrule_sourcranges_array[@]}) #Remove null elements from array
+    if [[ "${#sch_fwrule_sourcranges_array[@]}" == "0" ]]; then
+      echo "ERROR - If requested IPs are removed, the sourcerange IP list will be blank and GCP will default to opening the firewall to all IPs. "
+      echo "        Please add some other IP to the firewall rule and try this script again."
+      exit 1
+    fi
+
+    sch_fwrule_sourcranges=$(IFS=, ; echo "${sch_fwrule_sourcranges_array[*]}") # Convert array to string
+
     gcloud compute firewall-rules update ${SCH_FWRULE_NAME} --source-ranges=${sch_fwrule_sourcranges}
     ;;
 
