@@ -45,9 +45,43 @@ script for use with custom K8s cluster, you may need to take extra steps to add 
 
 NOTE: Autocaling is based on the host load as seen by K8s.  This is different than the values displayed in SCH which are based on the JVM load.
 
+
+## Kubernetes Cluster Provider Variations
+
+CAQ provides a generic implementation to work with any Kubernetes environment as well several variations for the major major cloud providers.  Vendor-specific variations include the ability to dynamically create and configure the Kubernetes Cluster itself at start time.
+
+The included variations are:
+
+| Sub-directory | Used for...    |
+| --- | --- |
+| k8s-eks | Amazon Elastic Kubernetest Serivec (EKS) |
+| k8s-aks  | Azure Kubernetes Services (AKS) |
+| k8s-gcp |  Google Kubernetes Engine (GKE)
+| k8s-generic | Any K8S compliant environemtn |
+
+Please refer to the Readme in each provider's corresponding sub-directory for provider-specific options and details.
+
+## Firewall Management Framework
+
+If you are using a private SCH instance and there is a firewall separating that SCH instances from your Kubernetes instance, then you will need to open that firewall to incoming traffic from th ip addresses of your K8s nodes.  In cases where this script is used to create the K8s cluster, the IPs would not be available in advance and therefore need to opened up as part of this scripts execution.  For this reason, CAQ includes a framework to open a firewall to Node IP addresses when a K8s is created and to close the firewall to those same addresses when the K8s cluster is destroyed.
+
+The user must implement a firewall management script for the type of firewall they will be using and place that script in the common sub-directory. The common sub-directory contains an example for managing GCP firewall rules.  The name of then scripts must then be exported via the variable SCH_FWRULE_UTIL.  For example:
+
+  export SCH_FWRULE_UTIL=my-firewall-manager.sh   
+
+In general these scripts must support the following usage:
+~~~
+$ ./my-firewall-manager.shkube [ACTION] [IP]
+  - ACTION:
+      add               Create K8s cluster and create configuration in SCH
+      remove            Create configuration in SCH
+
+  - IP: Comma delimted list of IP addresses to be processed
+~~~
+
 ## Prerequisites:
 
-1. kubectl
+1. kubectl (or compactible utiliy like Openshift's oc)
 2. jq
 3. envsubst
   - Not included by default on MacOS
@@ -117,10 +151,6 @@ SCH_PASSWORD - SCH Password
 
 SCH_URL - URL of SCH instance.  Default is "https://cloud.streamsets.com"
 
-KUBE_NAMESPACE - namespace to be created/used in K8s.  
-  - Default is "streamsets"
-  - If the value is "?", no new context will be created and the scripts will use Kubectl's current context
-
 KUBE_CREATE_CLUSTER - Should a new K8s instance be created (Startup only)
   - Set (any value) = true
   - Not set (default) = false
@@ -134,7 +164,17 @@ KUBE_CLUSTER_NAME - Name of cluster to be created/used as seen in the EKS web UI
 
 KUBE_CONTEXT_NAME - Name of the context to be created in Kubectl's Config file
   - Default is KUBE_CLUSTER_NAME
-  - If the value is "?", no new context will be created and the scripts will use Kubectl's current context
+  - A value of "?" indicates the script should use the existing cluster defined by your current kubectl context.
+
+  KUBE_NAMESPACE - namespace to be created/used in K8s.  
+    - Default is "streamsets"
+    - A value of "?" indicates the script should use the existing namespace associated with your kubectl context.
+      - KUBE_CONTEXT_NAME must also be set to "?" to use this option.
+      - To declare the default namespace for a given kubectl context, use command similar to:
+
+        > kubectl config set-context *my-context-name* --namespace=*my-namespace*
+
+        For more information on creating namespaces and configuring kubectl, please refer to the documentation from your Kubernetes provider.
 
 KUBE_NODE_INITIALCOUNT - The number of nodes the cluster should be created with.  
   - Default is 1 if SCH_DEPLOYMENT_TYPE is set to "AUTHORING".  Otherwise the default is 3.
