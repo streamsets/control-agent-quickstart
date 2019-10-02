@@ -23,7 +23,7 @@ $KUBE_EXEC create role ${SCH_AGENT_NAME}-role \
 echo ... create rolebining
 $KUBE_EXEC create rolebinding ${SCH_AGENT_NAME}-rolebinding \
     --role=${SCH_AGENT_NAME}-role \
-    --serviceaccount=${KUBE_NAMESPACE_ACTUAL}:${SCH_AGENT_NAME}-serviceaccount \
+    --serviceaccount=$(kubectl config view --minify --output 'jsonpath={..namespace}'):${SCH_AGENT_NAME}-serviceaccount \
     || { echo 'ERROR: Failed to create rolebinding in Kubernetes' ; exit 1; }
 
 # 1. Get a token for Agent from SCH and store it in a secret

@@ -45,9 +45,6 @@ if [ "${KUBE_NAMESPACE}" != "?" ] ; then
 fi
 export KUBE_EXEC
 
-KUBE_NAMESPACE_ACTUAL=$(kubectl config view --minify --output 'jsonpath={..namespace}')
-export KUBE_NAMESPACE_ACTUAL
-
 if [ -z "$(which envsubst)" ]; then
   echo "This script requires the 'envsubst' utility. See:"
   echo "https://command-not-found.com/envsubt"

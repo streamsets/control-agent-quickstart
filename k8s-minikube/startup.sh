@@ -21,7 +21,7 @@ kubectl create role ${SCH_AGENT_NAME}-serviceaccount \
 
 kubectl create rolebinding ${SCH_AGENT_NAME}-serviceaccount \
     --role=${SCH_AGENT_NAME}-serviceaccount \
-    --serviceaccount=${KUBE_NAMESPACE_ACTUAL}:${SCH_AGENT_NAME}-serviceaccount \
+    --serviceaccount=$(kubectl config view --minify --output 'jsonpath={..namespace}'):${SCH_AGENT_NAME}-serviceaccount \
 
 
 

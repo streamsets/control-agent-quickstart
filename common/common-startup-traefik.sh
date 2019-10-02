@@ -17,7 +17,7 @@ $KUBE_EXEC create role ${INGRESS_NAME}-ingress-controller \
 echo ... create rolebinding
 $KUBE_EXEC create rolebinding ${INGRESS_NAME}-ingress-controller \
     --role=${INGRESS_NAME}-ingress-controller \
-    --serviceaccount=${KUBE_NAMESPACE_ACTUAL}:${INGRESS_NAME}-ingress-controller \
+    --serviceaccount=$(kubectl config view --minify --output 'jsonpath={..namespace}'):${INGRESS_NAME}-ingress-controller \
     || { echo 'ERROR: Failed to create rolebinding in Kubernetes' ; exit 1; }
 echo Running common-startup-services.sh on cluster ${KUBE_CLUSTER_NAME}
 
@@ -47,15 +47,5 @@ $KUBE_EXEC create configmap ${INGRESS_NAME}-conf --from-file=traefik.toml=${PWD}
 echo ... create traefik service
 cat ${COMMON_DIR}/traefik-dep.yaml | envsubst > ${PWD}/_tmp_traefik-dep.yaml
 $KUBE_EXEC create -f ${PWD}/_tmp_traefik-dep.yaml || { echo 'ERROR: Failed to traefik service in Kubernetes' ; exit 1; }
-
-# 4. Wait for an external endpoint to be assigned
-#echo ... wait for traefik external ip address
-#external_ip=""
-#while [ -z $external_ip ]; do
-#    sleep 10
-#    #external_ip=$($KUBE_EXEC get svc ${INGRESS_NAME}-ingress-service -o json | jq -r 'select(.status.loadBalancer.ingress != null) | .status.loadBalancer.ingress[].ip')
-#    external_ip=$($KUBE_EXEC get svc ${INGRESS_NAME}-ingress-service -o json | jq -r 'select(.status.loadBalancer.ingress != null) | .status.loadBalancer.ingress[].hostname')
-#done
-#echo "External Endpoint to Access Authoring SDC : ${external_ip}\n"
 
 echo ${Sout:0:Sx} Exiting common-startup-traefik.sh on cluster ${KUBE_CLUSTER_NAME} ; ((Sx-=1));export Sx;
