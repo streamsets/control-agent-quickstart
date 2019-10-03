@@ -15,7 +15,7 @@ if [ "$KUBE_CREATE_CLUSTER" == "1" ]; then
     --num-nodes "$KUBE_NODE_INITIALCOUNT" \
     --network "default" \
     --enable-cloud-logging \
-    --enable-cloud-monitoring
+    --enable-cloud-monitoring  || { echo 'ERROR: Failed to create cluster' ; exit 1; }
 
   # Make current user cluster owner (not strictly necessary for the remainder of this scirpt to work)
   GCP_IAM_USERNAME=$(gcloud auth list --filter=status:ACTIVE --format="value(account)")
