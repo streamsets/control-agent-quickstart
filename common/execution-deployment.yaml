@@ -3,7 +3,6 @@ apiVersion: apps/v1
 kind: Deployment
 metadata:
   name: ${SCH_DEPLOYMENT_NAME}
-  namespace: ${KUBE_NAMESPACE}
 spec:
   replicas: ${SDC_REPLICAS}
   selector:

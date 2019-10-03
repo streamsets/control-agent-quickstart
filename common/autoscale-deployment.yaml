@@ -5,7 +5,6 @@ items:
   kind: Deployment
   metadata:
     name: ${SCH_DEPLOYMENT_NAME}
-    namespace: ${KUBE_NAMESPACE}
   spec:
     replicas: ${SDC_REPLICAS}
     selector:
@@ -35,7 +34,6 @@ items:
   kind: HorizontalPodAutoscaler
   metadata:
     name: ${SCH_DEPLOYMENT_NAME}-hpa
-    namespace: ${KUBE_NAMESPACE}
   spec:
     scaleTargetRef:
       apiVersion: apps/v1
