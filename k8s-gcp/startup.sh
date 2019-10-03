@@ -32,13 +32,4 @@ if [ "$KUBE_CREATE_CLUSTER" == "1" ]; then
 
 fi
 
-
-# Set the namespace
-
-
-if [ "${KUBE_NAMESPACE}" != "?" ] ; then
-  $KUBE_EXEC create namespace ${KUBE_NAMESPACE}
-  kubectl config set-context ${KUBE_CLUSTER_NAME} --namespace=${KUBE_NAMESPACE}
-fi
-
 ${COMMON_DIR}/common-startup-services.sh

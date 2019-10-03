@@ -1,13 +1,23 @@
 #!/bin/bash
 ((Sx+=1));export Sx; echo ${Sin:0:Sx} Running common-startup-services.sh on cluster ${KUBE_CLUSTER_NAME}
 
-${COMMON_DIR}/common-kubectl-connect.sh
+########################################################################
+# Set the namespace
+########################################################################
+if [ "${KUBE_NAMESPACE}" != "?" ] ; then
+  echo "Creating namespace ${KUBE_NAMESPACE}"
+  $KUBE_EXEC create namespace ${KUBE_NAMESPACE} || { echo 'ERROR: Failed to create namespace in Kubernetes' ; exit 1; }
+  kubectl config set-context ${KUBE_CLUSTER_NAME} --namespace=${KUBE_NAMESPACE} || { echo 'ERROR: Failed to update default namespace in kubectl' ; exit 1; }
+fi
 
 ########################################################################
-# Setup Service Account with roles to read required kubernetes objects #
+# Connect kubectl
 ########################################################################
+source ${COMMON_DIR}/common-kubectl-connect.sh
 
+########################################################################
 # Update SCH Firewall (if any)
+########################################################################
 if [ ! -z "${SCH_FWRULE_UTIL}" ] ; then
   echo Adding Nodes to SCH Firewall
   nodeEgressIPs=$($KUBE_EXEC get nodes -o jsonpath="{.items[*].status.addresses[?(@.type=='ExternalIP')].address}")
@@ -24,6 +34,6 @@ fi
 #######################
 # Setup Control Agent #
 #######################
-${COMMON_DIR}/common-startup-services-agent.sh 01
+${COMMON_DIR}/common-startup-services-agent.sh
 
 echo ${Sout:0:Sx} Exiting common-startup-services.sh on cluster ${KUBE_CLUSTER_NAME} ; ((Sx-=1));export Sx;

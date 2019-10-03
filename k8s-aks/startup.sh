@@ -18,13 +18,12 @@ if [ "$KUBE_CREATE_CLUSTER" == "1" ]; then
   --node-vm-size "${KUBE_PROVIDER_MACHINETYPE}" \
   --enable-addons monitoring \
   --generate-ssh-keys || { echo 'ERROR: Unable to create AKS instance' ; exit 1; }
-fi
-echo Configuring kubectl
-az aks get-credentials --resource-group ${AZURE_RESOURCE_GROUP} --name ${KUBE_CLUSTER_NAME}
-# Set the namespace
-if [ "${KUBE_NAMESPACE}" != "?" ] ; then
-  $KUBE_EXEC create namespace ${KUBE_NAMESPACE}
-  kubectl config set-context ${KUBE_CLUSTER_NAME} --namespace=${KUBE_NAMESPACE}
+
+  echo Configuring kubectl
+  az aks get-credentials --resource-group ${AZURE_RESOURCE_GROUP} --name ${KUBE_CLUSTER_NAME}
+
+  kubectl config rename-context $(kubectl config current-context) ${KUBE_CLUSTER_NAME}
+
 fi
 
 ${COMMON_DIR}/common-startup-services.sh

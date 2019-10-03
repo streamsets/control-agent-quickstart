@@ -1,7 +1,7 @@
 #!/bin/bash
 ((Sx+=1));export Sx; echo ${Sin:0:Sx} Running common-teardown-services-deployment.sh on cluster ${KUBE_CLUSTER_NAME}
 
-${COMMON_DIR}/common-kubectl-connect.sh
+source ${COMMON_DIR}/common-kubectl-connect.sh
 
 # 1. Stop and Delete deployment if one is active
 echo "Stop and Delete deployment if one is active"

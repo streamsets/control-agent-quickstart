@@ -1,7 +1,7 @@
 #!/bin/bash 
 ((Sx+=1));export Sx; echo Running common-startup-services-deployment.sh on cluster ${KUBE_CLUSTER_NAME}
 
-${COMMON_DIR}/common-kubectl-connect.sh
+source ${COMMON_DIR}/common-kubectl-connect.sh
 
 ######################
 # Initialize

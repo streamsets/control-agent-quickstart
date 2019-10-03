@@ -1,7 +1,7 @@
 #!/bin/bash
 ((Sx+=1));export Sx; echo ${Sin:0:Sx} Running common-startup-traefik.sh on cluster ${KUBE_CLUSTER_NAME}
 
-${COMMON_DIR}/common-kubectl-connect.sh
+source ${COMMON_DIR}/common-kubectl-connect.sh
 
 ####################################
 # Setup Traefik Ingress Controller #
@@ -17,7 +17,7 @@ $KUBE_EXEC create role ${INGRESS_NAME}-ingress-controller \
 echo ... create rolebinding
 $KUBE_EXEC create rolebinding ${INGRESS_NAME}-ingress-controller \
     --role=${INGRESS_NAME}-ingress-controller \
-    --serviceaccount=$(kubectl config view --minify --output 'jsonpath={..namespace}'):${INGRESS_NAME}-ingress-controller \
+    --serviceaccount=${KUBE_NAMESPACE_CURRENT}:${INGRESS_NAME}-ingress-controller \
     || { echo 'ERROR: Failed to create rolebinding in Kubernetes' ; exit 1; }
 echo Running common-startup-services.sh on cluster ${KUBE_CLUSTER_NAME}
 

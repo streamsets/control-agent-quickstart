@@ -63,15 +63,14 @@ if [ "$KUBE_CREATE_CLUSTER" == "1" ]; then
   EKS_NODE_INSTANCEROLE=$(aws cloudformation describe-stacks --region ${AWS_REGION} --stack-name ${EKS_NODE_GROUP_NAME} | jq -r '.Stacks[].Outputs[] | select(.OutputKey=="NodeInstanceRole").OutputValue')
   sed -i 's,<ARN of instance role (not instance profile)>,'"${EKS_NODE_INSTANCEROLE}"',' _tmp_aws-auth-cm.yaml
   $KUBE_EXEC apply -f _tmp_aws-auth-cm.yaml
+
+  echo Configuring K8s Cluster
+  echo ... configuring kubectl
+  aws eks --region ${AWS_REGION} update-kubeconfig --name "${KUBE_CLUSTER_NAME}" --alias "${KUBE_CLUSTER_NAME}"     || { echo 'ERROR: Failed to configure kubectl' ; exit 1; }
+
+  kubectl config rename-context $(kubectl config current-context) ${KUBE_CLUSTER_NAME}
+
 fi
 
-echo Configuring K8s Cluster
-echo ... configuring kubectl
-aws eks --region ${AWS_REGION} update-kubeconfig --name "${KUBE_CLUSTER_NAME}" --alias "${KUBE_CLUSTER_NAME}"     || { echo 'ERROR: Failed to configure kubectl' ; exit 1; }
-echo ... create namespace
-if [ "${KUBE_NAMESPACE}" != "?" ] ; then
-  $KUBE_EXEC create namespace ${KUBE_NAMESPACE}
-  kubectl config set-context ${KUBE_CLUSTER_NAME} --namespace=${KUBE_NAMESPACE}
-fi
 
 ${COMMON_DIR}/common-startup-services.sh

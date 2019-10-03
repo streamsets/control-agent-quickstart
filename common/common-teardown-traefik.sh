@@ -1,7 +1,7 @@
 #!/bin/bash
 ((Sx+=1));export Sx; echo ${Sin:0:Sx} Running common-teardown-traefik.sh on cluster ${KUBE_CLUSTER_NAME}
 
-${COMMON_DIR}/common-kubectl-connect.sh
+source ${COMMON_DIR}/common-kubectl-connect.sh
 
 # Configure & Delete traefik service
 echo "Deleting traefik ingress controller and service"
