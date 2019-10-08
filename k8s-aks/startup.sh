@@ -22,8 +22,6 @@ if [ "$KUBE_CREATE_CLUSTER" == "1" ]; then
   echo Configuring kubectl
   az aks get-credentials --resource-group ${AZURE_RESOURCE_GROUP} --name ${KUBE_CLUSTER_NAME}
 
-  kubectl config rename-context $(kubectl config current-context) ${KUBE_CLUSTER_NAME}
-
 fi
 
 ${COMMON_DIR}/common-startup-services.sh
