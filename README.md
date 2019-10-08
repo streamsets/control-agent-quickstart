@@ -8,6 +8,10 @@ This project provides pre-built scripts to configure Streamsets Control Hub (SCH
 - The agent and deployment configurations produced by this script are intended for demonstration purposes.  They are not routinely tested against production environment conditions.
 - Kerberos principal and keytab configuration in not currently supported by these scripts
 
+## Known Issues
+- As of 10/7/2019
+  - The EKS start script is not functioning due to recent changes by AWS
+  - Firewall Management Frameworks is not working for AKS clusters due to change by AKS because is no longer including the External IP in the node's description.
 
 ## Deployment Modes
 
