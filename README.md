@@ -11,7 +11,6 @@ This project provides pre-built scripts to configure Streamsets Control Hub (SCH
 ## Known Issues
 - As of 10/7/2019
   - The EKS start script is not functioning due to recent changes by AWS
-  - Firewall Management Frameworks is not working for AKS clusters due to change by AKS because is no longer including the External IP in the node's description.
 
 ## Deployment Modes
 
