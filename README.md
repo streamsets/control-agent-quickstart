@@ -233,6 +233,13 @@ SCH_DEPLOYMENT_NAME - SCH Org you wish to connect to K8s.
 SCH_DEPLOYMENT_LABELS - Command delimted list of lables to be applied to provisioned Data Collector instances.
   - Default - all,${KUBE_CLUSTER_NAME},${SCH_AGENT_NAME},${SCH_DEPLOYMENT_NAME},${SDC_DOCKER_TAG}
 
+SCH_DEPLOYMENT_NODEPORT -The Nodeport for the SDC Instance
+  - Default - Random
+  - Valid values are 30000 to 32767
+  - If defined, the value supplied must be unique for each Streamsets Deployment you create.
+  - You may need to modify your firewall settings in order to access this port on your K8s nodes.
+  - Nodeport connections are HTTP connections (not HTTPS) 
+
 SCH_DEPLOYMENT_TYPE - Defines how SDC instances will be used and how the UI will be be exposed.
   - See <a href="#heading-ids">Deployment Modes</a> for more details
 

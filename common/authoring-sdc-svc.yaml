@@ -11,6 +11,7 @@ spec:
   - name: http
     port: 18635
     targetPort: 18630
+    nodePort: ${SCH_DEPLOYMENT_NODEPORT}
     protocol: TCP
   selector:
     app: ${SCH_DEPLOYMENT_NAME}
