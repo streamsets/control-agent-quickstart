@@ -31,12 +31,12 @@ curl -s -X DELETE "${SCH_URL}/provisioning/rest/v1/deployment/${deployment_id}" 
 
 rm -f deployment-${SCH_DEPLOYMENT_NAME}.id
 
-echo ... create service and ingress for Authoring SDC
+if [ "$INGRESS_ENABLED" == "1" ]; then
+  #Deleting Authoring SDC Service and Ingress
+  echo ... delete service and ingress for Authoring SDC
+  cat ${COMMON_DIR}/authoring-sdc-svc.yaml | envsubst > ${PWD}/_tmp_authoring-sdc-svc.yaml
+  $KUBE_EXEC delete -f ${PWD}/_tmp_authoring-sdc-svc.yaml
 
-#Deleting Authoring SDC Service and Ingress
-cat ${COMMON_DIR}/authoring-sdc-svc.yaml | envsubst > ${PWD}/_tmp_authoring-sdc-svc.yaml
-$KUBE_EXEC delete -f ${PWD}/_tmp_authoring-sdc-svc.yaml
-
-${COMMON_DIR}/common-teardown-traefik.sh
-
+  ${COMMON_DIR}/common-teardown-traefik.sh
+fi
 echo ${Sout:0:Sx} Exiting common-teardown-services-deployment.sh on cluster ${KUBE_CLUSTER_NAME} ; ((Sx-=1));export Sx;

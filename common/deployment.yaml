@@ -19,7 +19,7 @@ spec:
         - containerPort: 18630
         env:
         - name: SDC_CONF_SDC_BASE_HTTP_URL
-          value: https://${external_ip}:${INGRESS_PORT_HTTPS}
+          value: ${sdc_protocol}://${sdc_host}:${sdc_port}
           #value: https://${external_ip}:${INGRESS_PORT_HTTPS}/${SCH_DEPLOYMENT_NAME}
         - name: SDC_CONF_HTTP_ENABLE_FORWARDED_REQUESTS
           value: true

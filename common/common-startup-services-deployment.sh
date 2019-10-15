@@ -38,48 +38,62 @@ export SDC_DOCKER_TAG
 case "$SCH_DEPLOYMENT_TYPE" in
   AUTHORING)
 
-  # ------------------------------------------------------------------------------------------------------------------------------------
-  #TODO - Ineffecient to create a unique Loadbalancer Service, Ingress, and Ingress-contoller for each deployment.  Options are:
-  #         1) Configure path-based routing in a single ingress-contoller defined at the cluster (or agent) level.
-  #             - Will require SDC support for path-based routes beind a reverse proxy
-  #             - Will need to modify ingressclass pointer in both traefik-dep.yaml and authoring-sdc-svc.yaml
-  #             - Will need to modify the route-path used in deployment.yaml and authoring-sdc-svc.yaml
-  #             - Will need to modify default value for INGRESS_NAME
-  #             - Will need to modify common-teardown-services-deployment.sh
-  #         2) Eliminate Ingress and tie deployment directly to Loadbalncer service
-  #             - This will still require a unique Loadbalncer Service for each deployment
-    echo ... create service and ingress for Authoring SDC
-    # Create Authoring SDC Service and Ingress
-    cat ${COMMON_DIR}/authoring-sdc-svc.yaml | envsubst > ${PWD}/_tmp_authoring-sdc-svc.yaml
-    $KUBE_EXEC create -f ${PWD}/_tmp_authoring-sdc-svc.yaml  || { echo 'ERROR: Failed to create service for Authoring instance' ; exit 1; }
+    if [ "$INGRESS_ENABLED" == "1" ]; then
+      # ------------------------------------------------------------------------------------------------------------------------------------
+      #TODO - Ineffecient to create a unique Loadbalancer Service, Ingress, and Ingress-contoller for each deployment.  Options are:
+      #         1) Configure path-based routing in a single ingress-contoller defined at the cluster (or agent) level.
+      #             - Will require SDC support for path-based routes beind a reverse proxy
+      #             - Will need to modify ingressclass pointer in both traefik-dep.yaml and authoring-sdc-svc.yaml
+      #             - Will need to modify the route-path used in deployment.yaml and authoring-sdc-svc.yaml
+      #             - Will need to modify default value for INGRESS_NAME
+      #             - Will need to modify common-teardown-services-deployment.sh
+      #         2) Eliminate Ingress and tie deployment directly to Loadbalncer service
+      #             - This will still require a unique Loadbalncer Service for each deployment
+      echo ... create service and ingress for Authoring SDC
+      # Create Authoring SDC Service and Ingress
+      cat ${COMMON_DIR}/authoring-sdc-svc.yaml | envsubst > ${PWD}/_tmp_authoring-sdc-svc.yaml
+      $KUBE_EXEC create -f ${PWD}/_tmp_authoring-sdc-svc.yaml  || { echo 'ERROR: Failed to create service for Authoring instance' ; exit 1; }
 
-    ${COMMON_DIR}/common-startup-traefik.sh
-  # ------------------------------------------------------------------------------------------------------------------------------------
+      ${COMMON_DIR}/common-startup-traefik.sh
+    # ------------------------------------------------------------------------------------------------------------------------------------
 
-    echo "... wait for traefik external ip address (this can take a minute)"
-    # Wait for an external endpoint to be assigned
-    external_ip=""
-    #while [ -z $external_ip ]; do
-    while [ 1 ]; do
-        #This section is a little messy because some K8s implementations return the address in a field named 'ip' and others in field named 'hostname"
-        ingress=$($KUBE_EXEC get svc ${INGRESS_NAME}-ingress-service -o json)
-        ingress_host=$(echo $ingress | jq -r 'select(.status.loadBalancer.ingress != null) | .status.loadBalancer.ingress[].hostname')
-        if [ -n "${ingress_host}" -a "${ingress_host}" != "null" ];
-        then
-          external_ip=$ingress_host
-          break
-        else
-          ingress_ip=$(echo $ingress | jq -r 'select(.status.loadBalancer.ingress != null) | .status.loadBalancer.ingress[].ip')
-          if [ -n "${ingress_ip}" -a "${ingress_ip}" != "null" ];
+      echo "... wait for traefik external ip address (this can take a minute)"
+      # Wait for an external endpoint to be assigned
+      external_ip=""
+      #while [ -z $external_ip ]; do
+      while [ 1 ]; do
+          #This section is a little messy because some K8s implementations return the address in a field named 'ip' and others in field named 'hostname"
+          ingress=$($KUBE_EXEC get svc ${INGRESS_NAME}-ingress-service -o json)
+          ingress_host=$(echo $ingress | jq -r 'select(.status.loadBalancer.ingress != null) | .status.loadBalancer.ingress[].hostname')
+          if [ -n "${ingress_host}" -a "${ingress_host}" != "null" ];
           then
-            external_ip=$ingress_ip
+            external_ip=$ingress_host
             break
+          else
+            ingress_ip=$(echo $ingress | jq -r 'select(.status.loadBalancer.ingress != null) | .status.loadBalancer.ingress[].ip')
+            if [ -n "${ingress_ip}" -a "${ingress_ip}" != "null" ];
+            then
+              external_ip=$ingress_ip
+              break
+            fi
           fi
-        fi
-        sleep 10
-    done
-    echo "External Endpoint to Access Authoring SDC : ${external_ip}\n"
-    export external_ip
+          sleep 10
+      done
+      echo "External Endpoint to Access Authoring SDC : ${external_ip}\n"
+      export external_ip
+      nodeEgressIPs=$($KUBE_EXEC get nodes -o jsonpath="{.items[*].status.addresses[?(@.type=='ExternalIP')].address}")
+
+      export sdc_host=${external_ip}
+      export sdc_port=${INGRESS_PORT_HTTPS}
+      export sdc_protocol=https
+    else
+      # Arbitrarily configure th link in SCH to point to Internal IP of first node in K8S cluster
+      # TODO Allow user to specific nodehosts
+      # TODO Allow user to point to External IP if one exists (e.g. GKE)
+      export sdc_protocol=http
+      export sdc_host=$($KUBE_EXEC get nodes -o json | jq -r '.items[1].status.addresses | .[] | select(.type=="InternalIP").address')
+      export sdc_port=${SCH_DEPLOYMENT_NODEPORT}
+    fi
 
     echo ... generating AUTHORING deploymnent yaml
     cat ${COMMON_DIR}/deployment.yaml | envsubst > ${PWD}/_tmp_deployment.yaml
