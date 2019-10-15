@@ -1,11 +1,11 @@
-# control-agent-quickstart
+# Control Agent Quickstart (CAQ)
 
 This project provides pre-built scripts to configure Streamsets Control Hub (SCH) to work with various Kubernetes (K8s) providers.  You may use an existing K8s cluster or have the scripts generate a new one.
 
 
 ## Known Limitations
 
-- The agent and deployment configurations produced by this script are intended for demonstration purposes.  They are not routinely tested against production environment conditions.
+- The agent and deployment configurations produced by CAQ are intended for demonstration purposes.  They are not routinely tested against production environment conditions.
 - Kerberos principal and keytab configuration in not currently supported by these scripts
 
 ## Known Issues
@@ -14,12 +14,12 @@ This project provides pre-built scripts to configure Streamsets Control Hub (SCH
 
 ## Deployment Modes
 
-This script can create deployments for the the following use cases:
+CAQ can create deployments for the the following use cases:
 
 #### 1. AUTHORING (Default)
 A single SDC instance with access to the UI via a Public URL.  This configuration includes an ingress server and loadBalancer deployment within K8s.
 
-The details of the loadBalancer implementation will vary depending on the K8s provider you use.  If you are working on a private K8s installation that does not implement a loadBalancer you will not be able to access the UI without modifying this script.
+The details of the loadBalancer implementation will vary depending on the K8s provider you use.  If you are working on a private K8s installation that does not implement a loadBalancer you will not be able to access the UI without modifying CAQ.
 
 The ingress deployment used Traefik and provides SSL termination. The SSL configuration uses a self-signed certificate.   **Before you can use the SDC instance for pipeline validations and previews from SCH, you must click on the Datacollector's link within SCH and accept the self-signed certificate.**
 
@@ -66,7 +66,7 @@ Please refer to the Readme in each provider's corresponding sub-directory for pr
 
 ## Firewall Management Framework
 
-If you are using a private SCH instance and there is a firewall separating that SCH instances from your Kubernetes instance, then you will need to open that firewall to incoming traffic from th ip addresses of your K8s nodes.  In cases where this script is used to create the K8s cluster, the IPs would not be available in advance and therefore need to opened up as part of this scripts execution.  For this reason, CAQ includes a framework to open a firewall to Node IP addresses when a K8s is created and to close the firewall to those same addresses when the K8s cluster is destroyed.
+If you are using a private SCH instance and there is a firewall separating that SCH instances from your Kubernetes instance, then you will need to open that firewall to incoming traffic from th ip addresses of your K8s nodes.  In cases where CAQ is used to create the K8s cluster, the IPs would not be available in advance and therefore need to opened up as part of CAQs execution.  For this reason, CAQ includes a framework to open a firewall to Node IP addresses when a K8s is created and to close the firewall to those same addresses when the K8s cluster is destroyed.
 
 The user must implement a firewall management script for the type of firewall they will be using and place that script in the common sub-directory. The common sub-directory contains an example for managing GCP firewall rules.  The name of then scripts must then be exported via the variable SCH_FWRULE_UTIL.  For example:
 
@@ -136,7 +136,7 @@ SCH_ORG=<org> SCH_USER=<user>@<org> SCH_PASSWORD=<password> KUBE_CLUSTER_NAME=<y
 
 
 ## Environment Variables
-The following properties are common to all versions of this script.  
+The following properties are common to all versions of CAQ.  
 
 *See the individual K8s Provider folders for additional environment variable information.*
 
