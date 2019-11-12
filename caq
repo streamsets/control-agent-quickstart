@@ -1,0 +1,158 @@
+#!/bin/bash
+#############################################################################################
+# caq - Helper script to run control agent quickstart
+#
+#    WARNING: This script is a work in progress and may change significantly before
+#
+# usage:
+#   1) create a environment shell script that exports
+#       - all variables you wish to set/override
+#       - a Variable called CAQ_PROVIDER that defines the k8s subfolder you wish to use.
+#         Valid values are:
+#           aks
+#           eks
+#           gcp
+#           generic
+#
+#       Example:
+#
+#         export CAQ_PROVIDER=aks
+#
+#         # Kuberenetes
+#         #---------------------------------------
+#         export KUBE_CREATE_CLUSTER=1
+#         export KUBE_DELETE_CLUSTER=1
+#         export KUBE_CLUSTER_NAME=myorg-aks
+#
+#         # StreamSets
+#         #---------------------------------------
+#         export SCH_URL=https://cloud.streamsets.com
+#         export SCH_ORG=myschorg
+#         export SCH_USER=myschid@myschorg
+#         export SCH_PASSWORD=myschpass
+#
+#   2) Run the command
+#       ./caq  -f [path to my env file] create
+#       ./caq  -f [path to my env file] destroy
+#       see usage function below for additonal details
+#
+#
+#############################################################################################
+
+
+
+
+# Print usage
+usage() {
+  echo -n "Control Agent Quickstart usage:
+
+    $ ./caq  [OPTIONS]... [ACTION]
+
+        ACTION:
+          create              Create K8s cluster, configure K8S cluster, configure SCH agent, configure SCH deployement
+          create-services     Configure K8S cluster, configure SCH agent, configure SCH deployement
+          create-agent        Configure SCH agent, configure SCH deployement
+          create-deployment   Configure SCH deployement
+          destroy-deployment  Delete SCH deployment
+          destroy-agent       Delete SCH deployment, delete SCH agent
+          destroy-services    Delete SCH deployment, delete SCH agent, delete K8s configuration
+          destroy             Delete SCH deployment, delete SCH agent, delete K8s configuration, destroy K8s cluster
+          connect             Switch kubectl context and namespace
+          login               Retrieve and display an SCH token that can be used with the REST api.
+
+
+       OPTIONS:
+        -f, --file         Environment File(s) to preload. Comma delimited.
+        -p, --provider     K8S provider where cluster should be created
+        -h, --help         Display this help and exit
+        -p, --provider     K8s Provider subfolder to be used
+                            - CAQ_PROVIDER is defined in environment file, this value will be ignored.
+"
+}
+
+# Read the options and set stuff
+while [[ $1 = -?* ]]; do
+  case $1 in
+    -h|--help) usage >&2; exit 1 ;;
+    -f|--file) shift; echo $1 ; IFS=',' ; CAQ_FILE=($1) ;;
+    -p|--provider) shift; CAQ_PROVIDER=$1 ;;
+    -s|--staandalone-kubectl) shift; CAQ_STANDALONE_KEBECTL=1 ;;
+    *) echo "ERROR - invalid option: '$1'" ; usage ; exit 1;;
+  esac
+  shift
+done
+#    read -r -a CAQ_FILE <<< "$1" ;;
+
+if [ $# -eq 0 ] ; then
+    echo "ERROR - Must supply an action."; usage ; exit 1
+else
+    CAQ_ACTION=$1;shift
+fi
+
+for file in ${CAQ_FILE[@]}; do
+  if [ -f $file ] ; then
+    echo sourcing ${file}
+    source "${file}"
+  else
+    if [ -f deploy-configs/${file} ] ; then
+      echo sourcing ${file}
+      source "deploy-configs/${file}"
+    else
+      echo "Error - Config file does not exist: ${file}"
+      exit 1
+    fi
+  fi
+done
+
+: ${CAQ_PROVIDER:=generic}
+cd k8s-${CAQ_PROVIDER}
+#time ./startup.sh
+
+if [ "$CAQ_STANDALONE_KEBECTL" == "1" ]; then
+  export KUBECONFIG=${KUBE_CLUSTER_NAME}-kube.cfg
+fi
+
+case $CAQ_ACTION in
+  create)
+    ./startup.sh
+    ;;
+  create-services)
+    source login.sh
+    ${COMMON_DIR}/common-startup-services.sh
+    ;;
+  create-agent)
+    source login.sh
+    ${COMMON_DIR}/common-startup-services-agent.sh
+    ;;
+  create-deployment)
+    source login.sh
+    ${COMMON_DIR}/common-startup-services-deployment.sh
+    ;;
+  destroy-deployment)
+    source login.sh
+    ${COMMON_DIR}/common-teardown-services-deployment.sh
+    ;;
+  destroy-agent)
+    source login.sh
+    ${COMMON_DIR}/common-teardown-services-agent.sh
+    ;;
+  destroy-services)
+    source login.sh
+    ${COMMON_DIR}/common-teardown-services.sh
+    ;;
+  destroy)
+    ./teardown.sh
+    ;;
+  connect)
+    source login.sh
+    ../common/common-kubectl-connect.sh
+    ;;
+  login)
+    source ./login.sh
+    echo Token is [${SCH_TOKEN}]
+    set | grep gke
+    ;;
+  *)
+    echo "ERROR - Invalid action: '$CAQ_ACTION'"; usage ; exit 1 ;;
+
+esac
