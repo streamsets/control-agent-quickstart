@@ -26,7 +26,7 @@ The ingress deployment used Traefik and provides SSL termination. The SSL config
 #### 2. EXECUTION
 A group of SDC instancs that can be scaled via the SCH Deployments screen.  
 
-These instances are not intended for development or any other activities that require routine access to the SDC UI.  The links displayed on SCH Data Collectors screeen do not work.  They are only intended to document that naem of the pod within the K8s instance.  **Remote access to the SDC UI is possible, but only with K8s port forwarding only.**
+These instances are not intended for development or any other activities that require routine access to the SDC UI.  The links displayed on SCH Data Collectors screeen do not work.  They are only intended to document that naem of the pod within the K8s instance.  **Remote access to the SDC UI is possible, but only with K8s' port forwarding feature.**
 
 To access the UI for an SDC instance you need to:
 1. Find the name of the instance you want to access via SCH Data Collectors screen or `kubectl get pods` command.
