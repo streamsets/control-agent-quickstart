@@ -7,7 +7,7 @@
 if [ "${KUBE_NAMESPACE}" != "?" ] ; then
   echo "Creating namespace ${KUBE_NAMESPACE}"
   $KUBE_EXEC create namespace ${KUBE_NAMESPACE} #|| { echo 'ERROR: Failed to create namespace in Kubernetes' ; exit 1; }
-  kubectl config set-context ${KUBE_CLUSTER_NAME} --namespace=${KUBE_NAMESPACE} || { echo 'ERROR: Failed to update default namespace in kubectl' ; exit 1; }
+  $KUBE_EXEC config set-context ${KUBE_CLUSTER_NAME} --namespace=${KUBE_NAMESPACE} || { echo 'ERROR: Failed to update default namespace in kubectl' ; exit 1; }
 fi
 
 ########################################################################
