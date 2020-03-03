@@ -68,7 +68,7 @@ if [ "$KUBE_CREATE_CLUSTER" == "1" ]; then
   echo ... configuring kubectl
   aws eks --region ${AWS_REGION} update-kubeconfig --name "${KUBE_CLUSTER_NAME}" --alias "${KUBE_CLUSTER_NAME}"     || { echo 'ERROR: Failed to configure kubectl' ; exit 1; }
 
-  kubectl config rename-context $(kubectl config current-context) ${KUBE_CLUSTER_NAME}
+  $KUBE_EXEC config rename-context $($KUBE_EXEC config current-context) ${KUBE_CLUSTER_NAME}
 
 fi
 
