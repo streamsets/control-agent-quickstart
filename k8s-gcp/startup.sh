@@ -24,11 +24,11 @@ if [ "$KUBE_CREATE_CLUSTER" == "1" ]; then
       --user="$GCP_IAM_USERNAME"
 
   #Config Kubectl
-  kubectl config unset contexts.`kubectl config get-contexts -o name | grep ${KUBE_CLUSTER_NAME}`
+  $KUBE_EXEC config unset contexts.`$KUBE_EXEC config get-contexts -o name | grep ${KUBE_CLUSTER_NAME}`
   gcloud container clusters get-credentials "${KUBE_CLUSTER_NAME}" \
     --zone "${KUBE_PROVIDER_GEO}" || { echo 'ERROR: Failed to configure kubectl context' ; exit 1; }
   #Subsequent scripts expect Cluster name and kubectl Context name to be the same.
-  kubectl config rename-context $(kubectl config current-context) ${KUBE_CLUSTER_NAME}
+  $KUBE_EXEC config rename-context $($KUBE_EXEC config current-context) ${KUBE_CLUSTER_NAME}
 
 fi
 
