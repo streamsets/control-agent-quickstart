@@ -48,3 +48,5 @@ if [ -z "$SCH_TOKEN" ]; then
   echo "Please check your username, password, and organization name."
   exit 1
 fi
+
+source ../common/common-login.sh

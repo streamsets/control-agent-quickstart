@@ -1,7 +1,7 @@
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: minikube-control-agent
+  name: ${SCH_AGENT_NAME}
 spec:
   replicas: 1
   selector:
@@ -14,8 +14,8 @@ spec:
     spec:
       serviceAccountName: ${SCH_AGENT_NAME}-serviceaccount
       containers:
-      - name: sch-control-agent
-        image: streamsets/control-agent:latest
+      - name: ${SCH_AGENT_NAME}
+        image: streamsets/control-agent:${SCH_AGENT_DOCKER_TAG}
         env:
         - name: HOST
           valueFrom:
@@ -28,24 +28,24 @@ spec:
         - name: dpm_agent_dpm_baseurl
           valueFrom:
             configMapKeyRef:
-              name: streamsets-config
+              name: ${SCH_AGENT_NAME}-config
               key: sch_url
         - name: dpm_agent_component_id
           valueFrom:
             configMapKeyRef:
-              name: streamsets-config
+              name: ${SCH_AGENT_NAME}-config
               key: agent_id
         - name: dpm_agent_token_string
           valueFrom:
             secretKeyRef:
-              name: sch-agent-creds
+              name: ${SCH_AGENT_NAME}-creds
               key: dpm_agent_token_string
         - name: dpm_agent_name
-          value: minikube-control-agent
+          value: ${SCH_AGENT_NAME}
         - name: dpm_agent_orgId
           valueFrom:
             configMapKeyRef:
-              name: streamsets-config
+              name: ${SCH_AGENT_NAME}-config
               key: org
         - name: dpm_agent_secret
-          value: compsecret
+          value: ${SCH_AGENT_NAME}-compsecret
