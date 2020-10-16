@@ -18,7 +18,7 @@ $KUBE_EXEC create serviceaccount ${SCH_AGENT_NAME}-serviceaccount || { echo 'ERR
 echo ... create role
 $KUBE_EXEC create role ${SCH_AGENT_NAME}-role \
     --verb=get,list,create,update,delete,patch \
-    --resource=pods,secrets,ingresses,services,horizontalpodautoscalers,replicasets.apps,deployments.apps,replicasets.extensions,deployments.extensions \
+    --resource=pods,secrets,ingresses,services,horizontalpodautoscalers,replicasets.apps,deployments.apps,replicasets.apps,deployments \
     || { echo 'ERROR: Failed to create role in Kubernetes' ; exit 1; }
 echo ... create rolebining
 $KUBE_EXEC create rolebinding ${SCH_AGENT_NAME}-rolebinding \
