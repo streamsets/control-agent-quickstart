@@ -1,5 +1,12 @@
 #!/bin/sh
 
+#######################################
+# Debug Commands. Uncomment As Needed #
+#######################################
+# set -e # Stop at first error
+# set -x # Print commands
+# set -v # Print shell input lines as they are read
+
 source login.sh
 source ${COMMON_DIR}/common-kubectl-connect.sh
 
@@ -20,7 +27,7 @@ $KUBE_EXEC create role ${SCH_AGENT_NAME}-role \
 echo ... create rolebining
 $KUBE_EXEC create rolebinding ${SCH_AGENT_NAME}-rolebinding \
     --role=${SCH_AGENT_NAME}-role \
-    --serviceaccount=${KUBE_NAMESPACE_CURRENT}:${SCH_AGENT_NAME}-serviceaccount
+    --serviceaccount=${KUBE_NAMESPACE}:${SCH_AGENT_NAME}-serviceaccount
 
 #######################
 # Setup Control Agent #
