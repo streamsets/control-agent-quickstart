@@ -16,6 +16,13 @@ spec:
       containers:
       - name: ${SCH_AGENT_NAME}
         image: streamsets/control-agent:${SCH_AGENT_DOCKER_TAG}
+        resources:
+          requests:
+            cpu: "1"
+            memory: "2048Mi"
+          limits:
+            cpu: "2"
+            memory: "4096Mi"
         env:
         - name: HOST
           valueFrom:
